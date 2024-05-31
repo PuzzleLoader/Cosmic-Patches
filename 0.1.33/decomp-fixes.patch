@@ -1,0 +1,1062 @@
+From e4eb115514555ffff6c6e47783c0358e20e9ddb5 Mon Sep 17 00:00:00 2001
+From: repletsin5 <50048371+repletsin5@users.noreply.github.com>
+Date: Fri, 31 May 2024 20:11:35 +0100
+Subject: [PATCH] fix-decomp
+
+---
+ .../finalforeach/cosmicreach/BlockGame.java   | 26 ++----------
+ .../cosmicreach/BlockSelection.java           | 39 +++++++++---------
+ .../cosmicreach/GameAssetLoader.java          |  2 -
+ .../finalforeach/cosmicreach/WorldLoader.java |  3 +-
+ .../blockentities/BlockEntity.java            |  3 +-
+ .../cosmicreach/blocks/BlockState.java        |  3 +-
+ .../blocks/PooledBlockPosition.java           |  3 +-
+ .../cosmicreach/constants/Direction.java      |  3 +-
+ .../gamestates/PrealphaPreamble.java          |  4 +-
+ .../io/CosmicReachBinaryDeserializer.java     |  3 +-
+ .../io/CosmicReachBinarySchema.java           | 20 +++++-----
+ .../cosmicreach/items/ItemMergeStrategy.java  |  2 +-
+ .../cosmicreach/lwjgl3/CrashScreen.java       |  2 +-
+ .../cosmicreach/lwjgl3/StartupHelper.java     |  3 +-
+ .../cosmicreach/rendering/ChunkBatch.java     |  2 +-
+ .../cosmicreach/rendering/ChunkMeshGroup.java |  3 +-
+ .../cosmicreach/rendering/RenderOrder.java    |  2 +-
+ .../rendering/blockmodels/BlockModelJson.java | 12 +++---
+ .../rendering/items/ItemRenderer.java         |  3 +-
+ .../rendering/shaders/GameShader.java         |  6 +--
+ .../savelib/blockdata/BlockDataCompactor.java |  2 +-
+ .../savelib/blockdata/LayeredBlockData.java   | 15 +++----
+ .../layers/SharedBlockSingleLayer.java        |  3 +-
+ .../settings/ControllerTracker.java           |  1 +
+ .../cosmicreach/ui/HorizontalAnchor.java      |  2 +-
+ .../cosmicreach/ui/VerticalAnchor.java        |  2 +-
+ .../cosmicreach/ui/debug/DebugInfo.java       |  1 +
+ .../cosmicreach/util/Point3DMap.java          |  4 +-
+ .../finalforeach/cosmicreach/world/Chunk.java | 40 ++++++++++---------
+ .../cosmicreach/world/Region.java             |  1 +
+ .../cosmicreach/world/RegionCoords.java       |  3 +-
+ .../finalforeach/cosmicreach/world/Sky.java   | 10 +++--
+ .../finalforeach/cosmicreach/world/World.java |  6 +--
+ .../finalforeach/cosmicreach/world/Zone.java  | 30 +++++++-------
+ .../worldgen/ChunkColumnCoords.java           |  3 +-
+ .../generators/FlatZoneGenerator.java         |  7 +---
+ .../InfiniteBasicZoneGenerator.java           |  8 +---
+ .../generators/MoonZoneGenerator.java         |  7 +---
+ .../NostalgicIslandZoneGenerator.java         |  7 +---
+ 39 files changed, 134 insertions(+), 162 deletions(-)
+
+diff --git a/src/main/java/finalforeach/cosmicreach/BlockGame.java b/src/main/java/finalforeach/cosmicreach/BlockGame.java
+index 34966b0..d056453 100644
+--- a/src/main/java/finalforeach/cosmicreach/BlockGame.java
++++ b/src/main/java/finalforeach/cosmicreach/BlockGame.java
+@@ -33,15 +33,6 @@ public class BlockGame extends ApplicationAdapter {
+    public static MiniAudio miniAudio;
+    public static Lwjgl3Application lwjglApp;
+    public static boolean gameStarted = false;
+-   static final int GPU_MEMORY_INFO_DEDICATED_VIDMEM_NVX = 36935;
+-   static final int GPU_MEMORY_INFO_TOTAL_AVAILABLE_MEMORY_NVX = 36936;
+-   static final int GPU_MEMORY_INFO_CURRENT_AVAILABLE_VIDMEM_NVX = 36937;
+-   static final int GPU_MEMORY_INFO_EVICTION_COUNT_NVX = 36938;
+-   static final int GPU_MEMORY_INFO_EVICTED_MEMORY_NVX = 36939;
+-   static final int GL_NUM_EXTENSIONS = 33309;
+-   long totalFrames;
+-   double totalDelta;
+-   double lastFrameFPS;
+    public static boolean isFocused = true;
+    private int defaultWindowWidth;
+    private int defaultWindowHeight;
+@@ -57,8 +48,7 @@ public class BlockGame extends ApplicationAdapter {
+       } finally {
+          System.out.println("Dispose() called! Closing the game.");
+ 
+-         while(ChunkSaver.isSaving) {
+-         }
++         while(ChunkSaver.isSaving) {}
+ 
+          System.exit(0);
+       }
+@@ -93,12 +83,7 @@ public class BlockGame extends ApplicationAdapter {
+             GameSingletons.zoneRenderer = new BatchedZoneRenderer();
+       }
+ 
+-      GameSingletons.soundManager = new ISoundManager() {
+-         @Override
+-         public void playSound(Sound sound, float volume, float pitch, float pan) {
+-            SoundManager.playSound(sound, volume, pitch, pan);
+-         }
+-      };
++      GameSingletons.soundManager = SoundManager::playSound;
+       GameSingletons.blockModelInstantiator = new IBlockModelInstantiator() {
+          @Override
+          public BlockModel getInstance(String modelName, int rotXZ) {
+@@ -114,12 +99,7 @@ public class BlockGame extends ApplicationAdapter {
+             BlockModelJson.getInstanceFromJsonStr(modelName, modelJson, rotXZ);
+          }
+       };
+-      ZoneGenerator.BLOCKSTATE_INSTANTIATOR = new BlockStateInstantiator() {
+-         @Override
+-         public BlockState getBlockStateInstance(String blockStateId) {
+-            return BlockState.getInstance(blockStateId);
+-         }
+-      };
++      ZoneGenerator.BLOCKSTATE_INSTANTIATOR = BlockState::getInstance;
+       gameStarted = true;
+    }
+ 
+diff --git a/src/main/java/finalforeach/cosmicreach/BlockSelection.java b/src/main/java/finalforeach/cosmicreach/BlockSelection.java
+index ea88d66..eed11f4 100644
+--- a/src/main/java/finalforeach/cosmicreach/BlockSelection.java
++++ b/src/main/java/finalforeach/cosmicreach/BlockSelection.java
+@@ -31,6 +31,7 @@ import finalforeach.cosmicreach.world.Zone;
+ import java.util.HashMap;
+ import java.util.Map;
+ 
++
+ public class BlockSelection {
+    public static ShapeRenderer shapeRenderer = new ShapeRenderer();
+    public static boolean enabled;
+@@ -38,7 +39,7 @@ public class BlockSelection {
+    private static BlockState selectedBlockState;
+    private BlockPosition lastSelectedBlockPos;
+    private static BlockPosition selectedBlockPos;
+-   private Array<BoundingBox> blockBoundingBoxes = new Array<>(false, 4, BoundingBox.class);
++   private final Array<BoundingBox> blockBoundingBoxes = new Array<>(false, 4, BoundingBox.class);
+    private LightPropagator lightPropagator = new LightPropagator();
+    private Ray ray = new Ray();
+    private BoundingBox tmpBoundingBox = new BoundingBox();
+@@ -52,12 +53,12 @@ public class BlockSelection {
+    private Vector3 mouseCoords2 = new Vector3();
+    private Array<BoundingBox> tmpBoundingBoxes = new Array<>(BoundingBox.class);
+    private static Array<BlockPosition> positionsToFree = new Array<>();
+-   static Pool<BlockPosition> positionPool = new Pool<BlockPosition>() {
+-      protected BlockPosition newObject() {
+-         PooledBlockPosition<BlockPosition> p = new PooledBlockPosition<>(BlockSelection.positionPool, null, 0, 0, 0);
+-         BlockSelection.positionsToFree.add(p);
+-         return p;
+-      }
++   static Pool<BlockPosition> positionPool = new Pool<>() {
++       protected BlockPosition newObject() {
++           PooledBlockPosition<BlockPosition> p = new PooledBlockPosition<>(BlockSelection.positionPool, null, 0, 0, 0);
++           BlockSelection.positionsToFree.add(p);
++           return p;
++       }
+    };
+ 
+    public static BlockState getBlockLookingAt() {
+@@ -156,9 +157,9 @@ public class BlockSelection {
+          this.workingPos.set(this.ray.origin);
+ 
+          for(; this.workingPos.dst(this.ray.origin) <= this.maximumRaycastDist; this.workingPos.add(this.ray.direction)) {
+-            int bx = (int)Math.floor((double)this.workingPos.x);
+-            int by = (int)Math.floor((double)this.workingPos.y);
+-            int bz = (int)Math.floor((double)this.workingPos.z);
++            int bx = (int)Math.floor(this.workingPos.x);
++            int by = (int)Math.floor(this.workingPos.y);
++            int bz = (int)Math.floor(this.workingPos.z);
+             int dx = 0;
+             int dy = 0;
+             int dz = 0;
+@@ -344,9 +345,9 @@ public class BlockSelection {
+             args.put("blockPos", blockPos);
+             args.put("timeSinceLastInteract", timeSinceLastInteract);
+ 
+-            for(int i = 0; i < triggers.length; ++i) {
+-               triggers[i].act(blockState, zone, args);
+-            }
++             for (BlockEventTrigger trigger : triggers) {
++                 trigger.act(blockState, zone, args);
++             }
+          }
+       }
+    }
+@@ -412,9 +413,9 @@ public class BlockSelection {
+             args.put("targetBlockState", targetBlockState);
+             args.put("timeSinceLastInteract", timeSinceLastInteract);
+ 
+-            for(int i = 0; i < triggers.length; ++i) {
+-               triggers[i].act(targetBlockState, zone, args);
+-            }
++             for (BlockEventTrigger trigger : triggers) {
++                 trigger.act(targetBlockState, zone, args);
++             }
+          }
+       }
+    }
+@@ -439,9 +440,9 @@ public class BlockSelection {
+             args.put("interactHeld", interactHeld);
+             args.put("timeSinceLastInteract", timeSinceLastInteract);
+ 
+-            for(int i = 0; i < triggers.length; ++i) {
+-               triggers[i].act(blockState, zone, args);
+-            }
++             for (BlockEventTrigger trigger : triggers) {
++                 trigger.act(blockState, zone, args);
++             }
+          }
+       }
+    }
+diff --git a/src/main/java/finalforeach/cosmicreach/GameAssetLoader.java b/src/main/java/finalforeach/cosmicreach/GameAssetLoader.java
+index a1e941e..ec9c3e6 100644
+--- a/src/main/java/finalforeach/cosmicreach/GameAssetLoader.java
++++ b/src/main/java/finalforeach/cosmicreach/GameAssetLoader.java
+@@ -1,7 +1,6 @@
+ package finalforeach.cosmicreach;
+ 
+ import com.badlogic.gdx.Gdx;
+-import com.badlogic.gdx.assets.AssetManager;
+ import com.badlogic.gdx.audio.Sound;
+ import com.badlogic.gdx.files.FileHandle;
+ import finalforeach.cosmicreach.io.SaveLocation;
+@@ -10,7 +9,6 @@ import java.util.HashMap;
+ public class GameAssetLoader {
+    public static final HashMap<String, FileHandle> ALL_ASSETS = new HashMap<>();
+    public static final HashMap<String, Sound> ALL_SOUNDS = new HashMap<>();
+-   public static AssetManager assetManager = new AssetManager();
+ 
+    public static FileHandle loadAsset(String fileName) {
+       return loadAsset(fileName, false);
+diff --git a/src/main/java/finalforeach/cosmicreach/WorldLoader.java b/src/main/java/finalforeach/cosmicreach/WorldLoader.java
+index 244f2d4..7936b8f 100644
+--- a/src/main/java/finalforeach/cosmicreach/WorldLoader.java
++++ b/src/main/java/finalforeach/cosmicreach/WorldLoader.java
+@@ -204,8 +204,7 @@ public class WorldLoader {
+                         return (int)(dBSq - dASq);
+                      }
+                   );
+-            } catch (Exception var23) {
+-            }
++            } catch (Exception ignored) {}
+ 
+             while(this.chunkColumnsToGenerate.notEmpty() && !this.requestSave) {
+                ChunkColumn col = this.chunkColumnsToGenerate.pop();
+diff --git a/src/main/java/finalforeach/cosmicreach/blockentities/BlockEntity.java b/src/main/java/finalforeach/cosmicreach/blockentities/BlockEntity.java
+index 27c9f6b..2d3a745 100644
+--- a/src/main/java/finalforeach/cosmicreach/blockentities/BlockEntity.java
++++ b/src/main/java/finalforeach/cosmicreach/blockentities/BlockEntity.java
+@@ -77,13 +77,14 @@ public abstract class BlockEntity implements ICosmicReachBinarySerializable {
+ 
+    public static float getBlockEntityParamFloat(Block block, String paramName, float defaultValue) {
+       OrderedMap<String, ?> params = block.blockEntityParams;
+-      return params != null && params.containsKey(paramName) ? params.get(paramName) : defaultValue;
++      return params != null && params.containsKey(paramName) ? (float) params.get(paramName) : defaultValue;
+    }
+ 
+    public static String getBlockEntityParamString(Block block, String paramName) {
+       return getBlockEntityParam(block, paramName);
+    }
+ 
++   @SuppressWarnings("unchecked")
+    public static <T> T getBlockEntityParam(Block block, String paramName) {
+       OrderedMap<String, ?> params = block.blockEntityParams;
+       return (T)(params != null && params.containsKey(paramName) ? params.get(paramName) : null);
+diff --git a/src/main/java/finalforeach/cosmicreach/blocks/BlockState.java b/src/main/java/finalforeach/cosmicreach/blocks/BlockState.java
+index ed325c8..de2c21b 100644
+--- a/src/main/java/finalforeach/cosmicreach/blocks/BlockState.java
++++ b/src/main/java/finalforeach/cosmicreach/blocks/BlockState.java
+@@ -16,6 +16,7 @@ import java.util.HashSet;
+ import java.util.Map;
+ import java.util.Map.Entry;
+ 
++
+ public class BlockState implements IBlockState {
+    public transient ItemBlock item;
+    private transient Block block;
+@@ -272,7 +273,7 @@ public class BlockState implements IBlockState {
+    public static String getModifiedSaveKey(String oldSaveKey, String paramName, String paramVal) {
+       String newSaveKey = oldSaveKey;
+       String paramSet = paramName + "=" + paramVal;
+-      if (paramVal.length() == 0) {
++      if (paramVal.isEmpty()) {
+          paramSet = "";
+       }
+ 
+diff --git a/src/main/java/finalforeach/cosmicreach/blocks/PooledBlockPosition.java b/src/main/java/finalforeach/cosmicreach/blocks/PooledBlockPosition.java
+index 509f777..5fe2f7f 100644
+--- a/src/main/java/finalforeach/cosmicreach/blocks/PooledBlockPosition.java
++++ b/src/main/java/finalforeach/cosmicreach/blocks/PooledBlockPosition.java
+@@ -11,8 +11,9 @@ public class PooledBlockPosition<TSelf extends BlockPosition> extends BlockPosit
+       this.positionPool = positionPool;
+    }
+ 
++   @SuppressWarnings("unchecked")
+    @Override
+    public void free() {
+-      this.positionPool.free((TSelf)this);
++      this.positionPool.free((TSelf) this);
+    }
+ }
+diff --git a/src/main/java/finalforeach/cosmicreach/constants/Direction.java b/src/main/java/finalforeach/cosmicreach/constants/Direction.java
+index 9bc00ee..629b904 100644
+--- a/src/main/java/finalforeach/cosmicreach/constants/Direction.java
++++ b/src/main/java/finalforeach/cosmicreach/constants/Direction.java
+@@ -2,6 +2,7 @@ package finalforeach.cosmicreach.constants;
+ 
+ import com.badlogic.gdx.utils.Array;
+ 
++
+ public enum Direction {
+    NEG_X(-1, 0, 0),
+    POS_X(1, 0, 0),
+@@ -59,7 +60,7 @@ public enum Direction {
+       return this.oppositeDirection;
+    }
+ 
+-   private Direction(int xOff, int yOff, int zOff) {
++   Direction(int xOff, int yOff, int zOff) {
+       this.xOff = xOff;
+       this.yOff = yOff;
+       this.zOff = zOff;
+diff --git a/src/main/java/finalforeach/cosmicreach/gamestates/PrealphaPreamble.java b/src/main/java/finalforeach/cosmicreach/gamestates/PrealphaPreamble.java
+index 5406f08..f388ae8 100644
+--- a/src/main/java/finalforeach/cosmicreach/gamestates/PrealphaPreamble.java
++++ b/src/main/java/finalforeach/cosmicreach/gamestates/PrealphaPreamble.java
+@@ -71,11 +71,11 @@ public class PrealphaPreamble extends GameState {
+ 
+                for(int w = 0; w < words.length; ++w) {
+                   String word = words[w];
+-                  float cw = curLine.length() == 0 ? 0.0F : lineDim.x;
++                  float cw = curLine.isEmpty() ? 0.0F : lineDim.x;
+                   FontRenderer.getTextDimensions(this.uiViewport, word, lineDim);
+                   lineDim.x += cw;
+                   if (lineDim.x > maxW) {
+-                     if (curLine.length() == 0) {
++                     if (curLine.isEmpty()) {
+                         FontRenderer.drawText(batch, this.uiViewport, word, -8.0F, y, HorizontalAnchor.CENTERED, VerticalAnchor.CENTERED);
+                      } else {
+                         FontRenderer.drawText(batch, this.uiViewport, curLine, -8.0F, y, HorizontalAnchor.CENTERED, VerticalAnchor.CENTERED);
+diff --git a/src/main/java/finalforeach/cosmicreach/io/CosmicReachBinaryDeserializer.java b/src/main/java/finalforeach/cosmicreach/io/CosmicReachBinaryDeserializer.java
+index 84958b4..b15760f 100644
+--- a/src/main/java/finalforeach/cosmicreach/io/CosmicReachBinaryDeserializer.java
++++ b/src/main/java/finalforeach/cosmicreach/io/CosmicReachBinaryDeserializer.java
+@@ -244,6 +244,7 @@ public class CosmicReachBinaryDeserializer {
+       return arr;
+    }
+ 
++   @SuppressWarnings("unchecked")
+    protected <T> T newInstance(Class<T> type) {
+       try {
+          return ClassReflection.newInstance(type);
+@@ -254,7 +255,7 @@ public class CosmicReachBinaryDeserializer {
+             Constructor constructor = ClassReflection.getDeclaredConstructor(type);
+             constructor.setAccessible(true);
+             return (T)constructor.newInstance();
+-         } catch (SecurityException var4) {
++         } catch (SecurityException ignored) {
+          } catch (ReflectionException var5) {
+             if (type.isArray()) {
+                throw new SerializationException("Encountered object when expected array of type: " + type.getName(), var7);
+diff --git a/src/main/java/finalforeach/cosmicreach/io/CosmicReachBinarySchema.java b/src/main/java/finalforeach/cosmicreach/io/CosmicReachBinarySchema.java
+index d703694..0a7f677 100644
+--- a/src/main/java/finalforeach/cosmicreach/io/CosmicReachBinarySchema.java
++++ b/src/main/java/finalforeach/cosmicreach/io/CosmicReachBinarySchema.java
+@@ -51,10 +51,9 @@ class CosmicReachBinarySchema {
+       return bytes;
+    }
+ 
+-   static record SchemaItem(String name, CosmicReachBinarySchema.SchemaType type) {
+-   }
++   record SchemaItem(String name, CosmicReachBinarySchema.SchemaType type) {}
+ 
+-   static enum SchemaType {
++   enum SchemaType {
+       SCHEMA_END(0),
+       BYTE(1),
+       SHORT(2),
+@@ -75,21 +74,20 @@ class CosmicReachBinarySchema {
+       STRING_ARRAY(18),
+       OBJ_ARRAY(19);
+ 
+-      byte id;
++      final byte id;
+ 
+-      private SchemaType(int id) {
++      SchemaType(int id) {
+          this.id = (byte)id;
+       }
+ 
+       static CosmicReachBinarySchema.SchemaType get(byte b) {
+          CosmicReachBinarySchema.SchemaType[] v = values();
+ 
+-         for(int i = 0; i < v.length; ++i) {
+-            CosmicReachBinarySchema.SchemaType s = v[i];
+-            if (s.id == b) {
+-               return s;
+-            }
+-         }
++          for (SchemaType s : v) {
++              if (s.id == b) {
++                  return s;
++              }
++          }
+ 
+          return null;
+       }
+diff --git a/src/main/java/finalforeach/cosmicreach/items/ItemMergeStrategy.java b/src/main/java/finalforeach/cosmicreach/items/ItemMergeStrategy.java
+index da9c492..657b8d9 100644
+--- a/src/main/java/finalforeach/cosmicreach/items/ItemMergeStrategy.java
++++ b/src/main/java/finalforeach/cosmicreach/items/ItemMergeStrategy.java
+@@ -2,5 +2,5 @@ package finalforeach.cosmicreach.items;
+ 
+ public enum ItemMergeStrategy {
+    PRESERVE,
+-   ONLY_ONE_SLOT;
++   ONLY_ONE_SLOT
+ }
+diff --git a/src/main/java/finalforeach/cosmicreach/lwjgl3/CrashScreen.java b/src/main/java/finalforeach/cosmicreach/lwjgl3/CrashScreen.java
+index 9d152e2..af2f296 100644
+--- a/src/main/java/finalforeach/cosmicreach/lwjgl3/CrashScreen.java
++++ b/src/main/java/finalforeach/cosmicreach/lwjgl3/CrashScreen.java
+@@ -61,7 +61,7 @@ public class CrashScreen {
+ 
+          gameVersion = Gdx.files.internal("build_assets/version.txt").readString();
+       } catch (Exception var38) {
+-         preStartErr.append(var38.toString());
++         preStartErr.append(var38);
+       }
+ 
+       infoItems.put("Game version", gameVersion);
+diff --git a/src/main/java/finalforeach/cosmicreach/lwjgl3/StartupHelper.java b/src/main/java/finalforeach/cosmicreach/lwjgl3/StartupHelper.java
+index 9ffa832..058d42b 100644
+--- a/src/main/java/finalforeach/cosmicreach/lwjgl3/StartupHelper.java
++++ b/src/main/java/finalforeach/cosmicreach/lwjgl3/StartupHelper.java
+@@ -4,6 +4,7 @@ import java.io.BufferedReader;
+ import java.io.File;
+ import java.io.InputStreamReader;
+ import java.lang.management.ManagementFactory;
++import java.nio.file.FileSystems;
+ import java.util.ArrayList;
+ import org.lwjgl.system.macosx.LibC;
+ 
+@@ -33,7 +34,7 @@ public class StartupHelper {
+             return false;
+          } else {
+             ArrayList<String> jvmArgs = new ArrayList<>();
+-            String separator = System.getProperty("file.separator");
++            String separator = FileSystems.getDefault().getSeparator();
+             String javaExecPath = System.getProperty("java.home") + separator + "bin" + separator + "java";
+             if (!new File(javaExecPath).exists()) {
+                System.err
+diff --git a/src/main/java/finalforeach/cosmicreach/rendering/ChunkBatch.java b/src/main/java/finalforeach/cosmicreach/rendering/ChunkBatch.java
+index 79e85eb..8986653 100644
+--- a/src/main/java/finalforeach/cosmicreach/rendering/ChunkBatch.java
++++ b/src/main/java/finalforeach/cosmicreach/rendering/ChunkBatch.java
+@@ -215,6 +215,6 @@ public class ChunkBatch {
+       }
+    }
+ 
+-   static record MeshDataMetadata(int vertexPosition, int numVertices) {
++   record MeshDataMetadata(int vertexPosition, int numVertices) {
+    }
+ }
+diff --git a/src/main/java/finalforeach/cosmicreach/rendering/ChunkMeshGroup.java b/src/main/java/finalforeach/cosmicreach/rendering/ChunkMeshGroup.java
+index 74059cf..7e85ec1 100644
+--- a/src/main/java/finalforeach/cosmicreach/rendering/ChunkMeshGroup.java
++++ b/src/main/java/finalforeach/cosmicreach/rendering/ChunkMeshGroup.java
+@@ -30,9 +30,10 @@ public class ChunkMeshGroup implements IChunkMeshGroup<Array<MeshData>>, Disposa
+       return chunk.getBlockData() == null ? null : getMeshData(chunk);
+    }
+ 
++   @SuppressWarnings("unchecked")
+    private static Array<MeshData> getMeshData(ISavedChunk<?> savedChunk) {
+       Chunk chunk = (Chunk)savedChunk;
+-      IBlockData<BlockState> blockData = chunk.getBlockData();
++      IBlockData<BlockState> blockData = (IBlockData<BlockState>) chunk.getBlockData();
+       BlockState airBlockState = Block.AIR.getDefaultBlockState();
+       if (blockData.isEntirely(airBlockState)) {
+          return emptyMeshDatas;
+diff --git a/src/main/java/finalforeach/cosmicreach/rendering/RenderOrder.java b/src/main/java/finalforeach/cosmicreach/rendering/RenderOrder.java
+index b64be4b..3a74ef4 100644
+--- a/src/main/java/finalforeach/cosmicreach/rendering/RenderOrder.java
++++ b/src/main/java/finalforeach/cosmicreach/rendering/RenderOrder.java
+@@ -6,7 +6,7 @@ public enum RenderOrder {
+ 
+    int order;
+ 
+-   private RenderOrder(int order) {
++   RenderOrder(int order) {
+       this.order = order;
+    }
+ 
+diff --git a/src/main/java/finalforeach/cosmicreach/rendering/blockmodels/BlockModelJson.java b/src/main/java/finalforeach/cosmicreach/rendering/blockmodels/BlockModelJson.java
+index 94d847d..bfc9fe8 100644
+--- a/src/main/java/finalforeach/cosmicreach/rendering/blockmodels/BlockModelJson.java
++++ b/src/main/java/finalforeach/cosmicreach/rendering/blockmodels/BlockModelJson.java
+@@ -45,6 +45,7 @@ public class BlockModelJson extends BlockModel {
+       return models.get(key);
+    }
+ 
++   @SuppressWarnings("unchecked")
+    public static BlockModelJson fromJson(String modelJson, int rotXZ) {
+       Json json = new Json();
+       BlockModelJson b = json.fromJson(BlockModelJson.class, modelJson);
+@@ -173,10 +174,10 @@ public class BlockModelJson extends BlockModel {
+                   }
+                   break;
+                case 270:
+-                  float fxa = 16.0F - boundsX1;
+-                  float fxb = 16.0F - boundsX2;
+-                  float fza = 16.0F - boundsZ1;
+-                  float fzb = 16.0F - boundsZ2;
++                  fxa = 16.0F - boundsX1;
++                  fxb = 16.0F - boundsX2;
++                  fza = 16.0F - boundsZ1;
++                  fzb = 16.0F - boundsZ2;
+                   c.localBounds[0] = Math.min(fza, fzb);
+                   c.localBounds[2] = Math.min(fxa, fxb);
+                   c.localBounds[3] = Math.max(fza, fzb);
+@@ -393,6 +394,5 @@ public class BlockModelJson extends BlockModel {
+       }
+    }
+ 
+-   static record BlockModelJsonInstanceKey(String modelName, int rotXZ) {
+-   }
++   record BlockModelJsonInstanceKey(String modelName, int rotXZ) {}
+ }
+diff --git a/src/main/java/finalforeach/cosmicreach/rendering/items/ItemRenderer.java b/src/main/java/finalforeach/cosmicreach/rendering/items/ItemRenderer.java
+index 65da6af..a853e7a 100644
+--- a/src/main/java/finalforeach/cosmicreach/rendering/items/ItemRenderer.java
++++ b/src/main/java/finalforeach/cosmicreach/rendering/items/ItemRenderer.java
+@@ -40,6 +40,7 @@ public class ItemRenderer {
+       }
+    }
+ 
++   @SuppressWarnings("unchecked")
+    public static <T extends Item> ItemModel getModel(T item, boolean createIfNull) {
+       WeakReference<Item> ref = referenceMap.get(item);
+       ItemModel model = null;
+@@ -49,7 +50,7 @@ public class ItemRenderer {
+ 
+       if (model == null && createIfNull) {
+          Class<? extends Item> clazz = item.getClass();
+-         Function<WeakReference<? extends Item>, ItemModel> creator = (Function)modelCreators.get(clazz);
++         Function<WeakReference<? extends Item>, ItemModel> creator = (Function<WeakReference<? extends Item>, ItemModel>) modelCreators.get(clazz);
+          ref = new WeakReference<>(item);
+          model = creator.apply(ref);
+          models.put(ref, model);
+diff --git a/src/main/java/finalforeach/cosmicreach/rendering/shaders/GameShader.java b/src/main/java/finalforeach/cosmicreach/rendering/shaders/GameShader.java
+index 2c28889..74a4c8b 100644
+--- a/src/main/java/finalforeach/cosmicreach/rendering/shaders/GameShader.java
++++ b/src/main/java/finalforeach/cosmicreach/rendering/shaders/GameShader.java
+@@ -76,7 +76,7 @@ public class GameShader {
+       }
+ 
+       sb.append("#endif //" + define + "\n");
+-      return version + sb.toString();
++      return version + sb;
+    }
+ 
+    public String preProcessShaderFile(String shaderText, GameShader.ShaderType shaderType) {
+@@ -279,9 +279,9 @@ public class GameShader {
+    public void unbind() {
+    }
+ 
+-   static enum ShaderType {
++   enum ShaderType {
+       FRAG,
+       VERT,
+-      IMPORTED;
++      IMPORTED
+    }
+ }
+diff --git a/src/main/java/finalforeach/cosmicreach/savelib/blockdata/BlockDataCompactor.java b/src/main/java/finalforeach/cosmicreach/savelib/blockdata/BlockDataCompactor.java
+index e9aefee..08ffd05 100644
+--- a/src/main/java/finalforeach/cosmicreach/savelib/blockdata/BlockDataCompactor.java
++++ b/src/main/java/finalforeach/cosmicreach/savelib/blockdata/BlockDataCompactor.java
+@@ -6,7 +6,7 @@ import finalforeach.cosmicreach.savelib.blockdata.layers.SharedBlockSingleLayer;
+ 
+ public class BlockDataCompactor {
+    public static <T> IBlockData<T> compact(IBlockData<T> blockData) {
+-      if (blockData instanceof LayeredBlockData layered) {
++      if (blockData instanceof LayeredBlockData<T> layered) {
+          IBlockLayer<T>[] allLayers = layered.getLayers();
+ 
+          for(int yLevel = 0; yLevel < allLayers.length; ++yLevel) {
+diff --git a/src/main/java/finalforeach/cosmicreach/savelib/blockdata/LayeredBlockData.java b/src/main/java/finalforeach/cosmicreach/savelib/blockdata/LayeredBlockData.java
+index aa706b6..8b8ada4 100644
+--- a/src/main/java/finalforeach/cosmicreach/savelib/blockdata/LayeredBlockData.java
++++ b/src/main/java/finalforeach/cosmicreach/savelib/blockdata/LayeredBlockData.java
+@@ -14,6 +14,7 @@ import java.util.Arrays;
+ import java.util.function.Function;
+ import java.util.function.Predicate;
+ 
++@SuppressWarnings("unchecked")
+ public class LayeredBlockData<T> implements IBlockData<T> {
+    private IBlockLayer<T>[] layers = new IBlockLayer[16];
+    private T[] blockStatePalette;
+@@ -62,9 +63,10 @@ public class LayeredBlockData<T> implements IBlockData<T> {
+       return new SingleBlockData<>(blockState);
+    }
+ 
++   @SuppressWarnings("unchecked")
+    @Override
+    public IBlockData<T> fillLayer(T blockState, int localY) {
+-      IBlockLayer sx = this.layers[localY];
++      IBlockLayer<T> sx = this.layers[localY];
+       if (sx instanceof BlockSingleLayer s) {
+          s.fill(this, localY, blockState);
+       } else {
+@@ -78,13 +80,12 @@ public class LayeredBlockData<T> implements IBlockData<T> {
+             return this.fill(blockState);
+          }
+ 
+-         IBlockLayer var5 = this.layers[i];
+-         if (!(var5 instanceof BlockSingleLayer)) {
++         IBlockLayer<T> var5 = this.layers[i];
++         if (!(var5 instanceof BlockSingleLayer<T> s)) {
+             break;
+          }
+ 
+-         BlockSingleLayer<T> s = (BlockSingleLayer)var5;
+-         if (s.blockValue != blockState) {
++          if (s.blockValue != blockState) {
+             break;
+          }
+ 
+@@ -124,8 +125,8 @@ public class LayeredBlockData<T> implements IBlockData<T> {
+    }
+ 
+    public void setLayer(int yLevel, IBlockLayer<T> layer) {
+-      if (layer instanceof SharedBlockSingleLayer shared && !this.paletteHasValue(shared.blockValue)) {
+-         this.addToPalette(shared.blockValue);
++      if (layer instanceof SharedBlockSingleLayer<?> shared && !this.paletteHasValue((T) shared.blockValue)) {
++         this.addToPalette((T) shared.blockValue);
+       }
+ 
+       this.layers[yLevel] = layer;
+diff --git a/src/main/java/finalforeach/cosmicreach/savelib/blockdata/layers/SharedBlockSingleLayer.java b/src/main/java/finalforeach/cosmicreach/savelib/blockdata/layers/SharedBlockSingleLayer.java
+index 42a664c..1ad3c71 100644
+--- a/src/main/java/finalforeach/cosmicreach/savelib/blockdata/layers/SharedBlockSingleLayer.java
++++ b/src/main/java/finalforeach/cosmicreach/savelib/blockdata/layers/SharedBlockSingleLayer.java
+@@ -17,6 +17,7 @@ public class SharedBlockSingleLayer<T> extends BlockSingleLayer<T> {
+       }
+    }
+ 
++   @SuppressWarnings("unchecked")
+    public static <T> SharedBlockSingleLayer<T> get(LayeredBlockData<T> chunkData, T blockValue) {
+       SharedBlockSingleLayer<?> shared = sharedInstances.get(blockValue);
+       if (shared == null) {
+@@ -29,6 +30,6 @@ public class SharedBlockSingleLayer<T> extends BlockSingleLayer<T> {
+          }
+       }
+ 
+-      return shared;
++      return (SharedBlockSingleLayer<T>) shared;
+    }
+ }
+diff --git a/src/main/java/finalforeach/cosmicreach/settings/ControllerTracker.java b/src/main/java/finalforeach/cosmicreach/settings/ControllerTracker.java
+index 1105241..bbc2aee 100644
+--- a/src/main/java/finalforeach/cosmicreach/settings/ControllerTracker.java
++++ b/src/main/java/finalforeach/cosmicreach/settings/ControllerTracker.java
+@@ -5,6 +5,7 @@ import com.badlogic.gdx.controllers.ControllerListener;
+ import com.badlogic.gdx.utils.IntFloatMap;
+ import com.badlogic.gdx.utils.IntSet;
+ 
++
+ class ControllerTracker implements ControllerListener {
+    public Controller controller;
+    private boolean flipFlop = false;
+diff --git a/src/main/java/finalforeach/cosmicreach/ui/HorizontalAnchor.java b/src/main/java/finalforeach/cosmicreach/ui/HorizontalAnchor.java
+index d06f619..9e3b84e 100644
+--- a/src/main/java/finalforeach/cosmicreach/ui/HorizontalAnchor.java
++++ b/src/main/java/finalforeach/cosmicreach/ui/HorizontalAnchor.java
+@@ -3,5 +3,5 @@ package finalforeach.cosmicreach.ui;
+ public enum HorizontalAnchor {
+    LEFT_ALIGNED,
+    CENTERED,
+-   RIGHT_ALIGNED;
++   RIGHT_ALIGNED
+ }
+diff --git a/src/main/java/finalforeach/cosmicreach/ui/VerticalAnchor.java b/src/main/java/finalforeach/cosmicreach/ui/VerticalAnchor.java
+index 775056b..095e38d 100644
+--- a/src/main/java/finalforeach/cosmicreach/ui/VerticalAnchor.java
++++ b/src/main/java/finalforeach/cosmicreach/ui/VerticalAnchor.java
+@@ -3,5 +3,5 @@ package finalforeach.cosmicreach.ui;
+ public enum VerticalAnchor {
+    TOP_ALIGNED,
+    CENTERED,
+-   BOTTOM_ALIGNED;
++   BOTTOM_ALIGNED
+ }
+diff --git a/src/main/java/finalforeach/cosmicreach/ui/debug/DebugInfo.java b/src/main/java/finalforeach/cosmicreach/ui/debug/DebugInfo.java
+index 5a8cbe0..aaf9fb6 100644
+--- a/src/main/java/finalforeach/cosmicreach/ui/debug/DebugInfo.java
++++ b/src/main/java/finalforeach/cosmicreach/ui/debug/DebugInfo.java
+@@ -13,6 +13,7 @@ import finalforeach.cosmicreach.ui.FontRenderer;
+ import finalforeach.cosmicreach.world.Zone;
+ import java.text.DecimalFormat;
+ 
++
+ public class DebugInfo {
+    private static Array<DebugItem> items = new Array<>();
+    private static String entireStr;
+diff --git a/src/main/java/finalforeach/cosmicreach/util/Point3DMap.java b/src/main/java/finalforeach/cosmicreach/util/Point3DMap.java
+index c946e44..b77f1f8 100644
+--- a/src/main/java/finalforeach/cosmicreach/util/Point3DMap.java
++++ b/src/main/java/finalforeach/cosmicreach/util/Point3DMap.java
+@@ -81,7 +81,7 @@ public class Point3DMap<T> implements IPoint3DMap<T> {
+ 
+    @Override
+    public void forEach(Consumer<T> consumer) {
+-      this.map.forEach(lt -> ((IntMap)lt.value).forEach(t -> consumer.accept((T)t.value)));
++      this.map.forEach(lt -> lt.value.forEach(t -> consumer.accept((T)t.value)));
+    }
+ 
+    @Override
+@@ -90,7 +90,7 @@ public class Point3DMap<T> implements IPoint3DMap<T> {
+          long l = lt.key;
+          int x = (int)(l >> 32);
+          int y = (int)(l & 4294967295L);
+-         ((IntMap)lt.value).forEach(it -> {
++         lt.value.forEach(it -> {
+             int z = it.key;
+             consumer.consume((T)it.value, x, y, z);
+          });
+diff --git a/src/main/java/finalforeach/cosmicreach/world/Chunk.java b/src/main/java/finalforeach/cosmicreach/world/Chunk.java
+index ebb3772..38e9224 100644
+--- a/src/main/java/finalforeach/cosmicreach/world/Chunk.java
++++ b/src/main/java/finalforeach/cosmicreach/world/Chunk.java
+@@ -26,6 +26,7 @@ import finalforeach.cosmicreach.util.IPoint3DMap;
+ import finalforeach.cosmicreach.util.Point3DMap;
+ import java.util.function.Consumer;
+ 
++@SuppressWarnings({"unchecked", "unused"})
+ public class Chunk implements ISavedChunk<BlockState> {
+    public static final int CHUNK_WIDTH = 16;
+    public static final int NUM_BLOCKS_IN_CHUNK = 4096;
+@@ -74,7 +75,8 @@ public class Chunk implements ISavedChunk<BlockState> {
+    public BlockEntity setBlockEntity(BlockState blockState, int localX, int localY, int localZ) {
+       Block block = blockState != null ? blockState.getBlock() : null;
+       if (this.blockEntities == null) {
+-         if (block.blockEntityId == null) {
++          assert block != null;
++          if (block.blockEntityId == null) {
+             return null;
+          }
+ 
+@@ -84,7 +86,8 @@ public class Chunk implements ISavedChunk<BlockState> {
+       if (this.blockEntities.size() > 0) {
+          BlockEntity oldEntity = this.blockEntities.get(localX, localY, localZ);
+          if (oldEntity != null) {
+-            if (oldEntity.getBlockEntityId().equals(block.blockEntityId)) {
++             assert block != null;
++             if (oldEntity.getBlockEntityId().equals(block.blockEntityId)) {
+                return oldEntity;
+             }
+ 
+@@ -92,18 +95,18 @@ public class Chunk implements ISavedChunk<BlockState> {
+          }
+       }
+ 
+-      if (block.blockEntityId != null) {
+-         BlockEntity blockEntity = BlockEntityCreator.get(blockState, this.blockX + localX, this.blockY + localY, this.blockZ + localZ);
+-         this.blockEntities.put(blockEntity, localX, localY, localZ);
+-         blockEntity.onCreate(blockState);
+-         return blockEntity;
++       assert block != null;
++       if (block.blockEntityId != null) {
++          BlockEntity blockEntity = BlockEntityCreator.get(blockState, this.blockX + localX, this.blockY + localY, this.blockZ + localZ);
++          this.blockEntities.put(blockEntity, localX, localY, localZ);
++          blockEntity.onCreate(blockState);
++          return blockEntity;
+       } else {
+-         this.blockEntities.remove(localX, localY, localZ);
+-         if (this.blockEntities.size() == 0) {
+-            this.blockEntities = null;
+-         }
+-
+-         return null;
++          this.blockEntities.remove(localX, localY, localZ);
++          if (this.blockEntities.size() == 0) {
++             this.blockEntities = null;
++          }
++          return null;
+       }
+    }
+ 
+@@ -149,18 +152,17 @@ public class Chunk implements ISavedChunk<BlockState> {
+ 
+    @Override
+    public int getMaxNonEmptyBlockIdxYXZ() {
+-      IBlockData numBlocksPerLayer = this.blockData;
++      IBlockData<?> numBlocksPerLayer = this.blockData;
+       if (!(numBlocksPerLayer instanceof LayeredBlockData)) {
+          return 4096;
+       } else {
+-         LayeredBlockData<BlockState> layered = (LayeredBlockData)numBlocksPerLayer;
+-         int numBlocksPerLayer = 256;
++         LayeredBlockData<BlockState> layered = (LayeredBlockData<BlockState>) numBlocksPerLayer;
+          int max = 4096;
+ 
+          for(int l = 15; l >= 0; --l) {
+             IBlockLayer<BlockState> layer = layered.getLayer(l);
+-            if (layer instanceof BlockSingleLayer s) {
+-               BlockState block = s.blockValue;
++            if (layer instanceof BlockSingleLayer<?> s) {
++               BlockState block = (BlockState) s.blockValue;
+                if (!block.hasEmptyModel()) {
+                   break;
+                }
+@@ -308,7 +310,7 @@ public class Chunk implements ISavedChunk<BlockState> {
+             }
+          }
+       } else if (this.blockEntities != null && this.blockEntities.size() > 0) {
+-         this.blockEntities.forEach(blockEntity -> blockEntity.onRemove());
++         this.blockEntities.forEach(BlockEntity::onRemove);
+          this.blockEntities = null;
+       }
+    }
+diff --git a/src/main/java/finalforeach/cosmicreach/world/Region.java b/src/main/java/finalforeach/cosmicreach/world/Region.java
+index 8c2be6a..2a3f5e7 100644
+--- a/src/main/java/finalforeach/cosmicreach/world/Region.java
++++ b/src/main/java/finalforeach/cosmicreach/world/Region.java
+@@ -5,6 +5,7 @@ import com.badlogic.gdx.utils.Array;
+ import finalforeach.cosmicreach.blocks.BlockState;
+ import finalforeach.cosmicreach.savelib.IRegion;
+ 
++@SuppressWarnings({"unused"})
+ public class Region implements IRegion<BlockState> {
+    public static final int REGION_WIDTH = 16;
+    public static final int NUM_CHUNKS_IN_REGION = 4096;
+diff --git a/src/main/java/finalforeach/cosmicreach/world/RegionCoords.java b/src/main/java/finalforeach/cosmicreach/world/RegionCoords.java
+index 3ca3102..a458d9e 100644
+--- a/src/main/java/finalforeach/cosmicreach/world/RegionCoords.java
++++ b/src/main/java/finalforeach/cosmicreach/world/RegionCoords.java
+@@ -1,4 +1,3 @@
+ package finalforeach.cosmicreach.world;
+ 
+-public record RegionCoords(int x, int y, int z) {
+-}
++public record RegionCoords(int x, int y, int z) {}
+diff --git a/src/main/java/finalforeach/cosmicreach/world/Sky.java b/src/main/java/finalforeach/cosmicreach/world/Sky.java
+index 70a22ba..c4f1110 100644
+--- a/src/main/java/finalforeach/cosmicreach/world/Sky.java
++++ b/src/main/java/finalforeach/cosmicreach/world/Sky.java
+@@ -15,12 +15,12 @@ import finalforeach.cosmicreach.rendering.shaders.GameShader;
+ import finalforeach.cosmicreach.rendering.shaders.SkyStarShader;
+ 
+ public class Sky {
+-   public static Sky currentSky = Sky.skyChoices.first();
+    public static Array<Sky> skyChoices = new Array<>();
++   public static Sky currentSky;
+    public String nameLangKey;
+-   public Color currentSkyColor = new Color(0.0F, 0.0F, 0.0F, 1.0F);
+-   public Color currentAmbientColor = new Color(0.75F, 0.75F, 0.75F, 1.0F);
+-   public boolean shouldDrawStars = true;
++   public Color currentSkyColor;
++   public Color currentAmbientColor;
++   public boolean shouldDrawStars;
+    public Mesh starMesh;
+    private GameShader starShader;
+ 
+@@ -111,5 +111,7 @@ public class Sky {
+       skyChoices.add(new Sky("Orange_Sky", new Color(0.9F, 0.4F, 0.0F, 1.0F), new Color(0.9F, 0.6F, 0.3F, 1.0F), false));
+       skyChoices.add(new Sky("Pitch_Dark", Color.BLACK, Color.BLACK, false));
+       skyChoices.add(new Sky("Overcast", new Color(0.75F, 0.75F, 0.75F, 1.0F).mul(0.2F), new Color(0.75F, 0.75F, 0.75F, 1.0F).mul(0.75F), false));
++
++      currentSky = Sky.skyChoices.first();
+    }
+ }
+diff --git a/src/main/java/finalforeach/cosmicreach/world/World.java b/src/main/java/finalforeach/cosmicreach/world/World.java
+index b1fcac8..76a9072 100644
+--- a/src/main/java/finalforeach/cosmicreach/world/World.java
++++ b/src/main/java/finalforeach/cosmicreach/world/World.java
+@@ -45,12 +45,12 @@ public class World implements Json.Serializable {
+    }
+ 
+    public static World createNew(String worldDisplayName, String worldSeed, String defaultZoneId, ZoneGenerator zoneGen) {
+-      long seed = 0L;
+-      if (worldSeed != null && worldSeed.length() > 0) {
++      long seed;
++      if (worldSeed != null && !worldSeed.isEmpty()) {
+          try {
+             seed = Long.parseLong(worldSeed);
+          } catch (Exception var7) {
+-            seed = (long)worldSeed.hashCode();
++            seed = worldSeed.hashCode();
+          }
+       } else {
+          seed = new Random().nextLong();
+diff --git a/src/main/java/finalforeach/cosmicreach/world/Zone.java b/src/main/java/finalforeach/cosmicreach/world/Zone.java
+index 48b9b09..49e4668 100644
+--- a/src/main/java/finalforeach/cosmicreach/world/Zone.java
++++ b/src/main/java/finalforeach/cosmicreach/world/Zone.java
+@@ -19,16 +19,18 @@ import finalforeach.cosmicreach.worldgen.ZoneGenerator;
+ import java.io.File;
+ import java.io.FileOutputStream;
+ import java.io.IOException;
++import java.util.Comparator;
+ import java.util.Map;
+ import java.util.PriorityQueue;
+ import java.util.concurrent.ConcurrentHashMap;
+ 
++
+ public class Zone implements Json.Serializable, Disposable {
+-   public PriorityQueue<ScheduledTrigger> eventQueue = new PriorityQueue<>((a, b) -> a.triggerTick() - b.triggerTick());
++   public PriorityQueue<ScheduledTrigger> eventQueue = new PriorityQueue<>(Comparator.comparingInt(ScheduledTrigger::triggerTick));
+    public int currentTick = 0;
+    private final Point3DMap<Chunk> chunks = new Point3DMap<>();
+    private final Map<RegionCoords, Region> regionMap = new ConcurrentHashMap<>();
+-   private transient Region[] regionValues = this.regionMap.values().toArray(new Region[this.regionMap.size()]);
++   private transient Region[] regionValues = this.regionMap.values().toArray(new Region[0]);
+    public Array<Entity> allEntities = new Array<>();
+    public Vector3 spawnPoint;
+    public String zoneId;
+@@ -36,8 +38,7 @@ public class Zone implements Json.Serializable, Disposable {
+    public float respawnHeight = -64.0F;
+    private transient World world;
+ 
+-   private Zone() {
+-   }
++   private Zone() {}
+ 
+    public Zone(World world, String zoneId, ZoneGenerator worldGen) {
+       this.world = world;
+@@ -171,7 +172,7 @@ public class Zone implements Json.Serializable, Disposable {
+ 
+       synchronized(this.getRegionLock()) {
+          this.regionMap.remove(new RegionCoords(r.regionX, r.regionY, r.regionZ));
+-         this.regionValues = this.regionMap.values().toArray(new Region[this.regionMap.size()]);
++         this.regionValues = this.regionMap.values().toArray(new Region[0]);
+       }
+ 
+       GameSingletons.zoneRenderer.removeRegion(r);
+@@ -233,7 +234,7 @@ public class Zone implements Json.Serializable, Disposable {
+    }
+ 
+    public BlockEntity getBlockEntity(Chunk candidateChunk, int x, int y, int z) {
+-      return this.get(candidateChunk, x, y, z, (c, lx, ly, lz) -> c.getBlockEntity(lx, ly, lz));
++      return this.get(candidateChunk, x, y, z, Chunk::getBlockEntity);
+    }
+ 
+    public BlockState getBlockState(float x, float y, float z) {
+@@ -258,13 +259,12 @@ public class Zone implements Json.Serializable, Disposable {
+       int cz = Math.floorDiv(z, 16);
+       Chunk c = null;
+ 
+-      for(int ci = 0; ci < candidateChunks.length; ++ci) {
+-         Chunk candidateChunk = candidateChunks[ci];
+-         if (candidateChunk != null && candidateChunk.chunkX == cx && candidateChunk.chunkY == cy && candidateChunk.chunkZ == cz) {
+-            c = candidateChunk;
+-            break;
+-         }
+-      }
++       for (Chunk candidateChunk : candidateChunks) {
++           if (candidateChunk != null && candidateChunk.chunkX == cx && candidateChunk.chunkY == cy && candidateChunk.chunkZ == cz) {
++               c = candidateChunk;
++               break;
++           }
++       }
+ 
+       if (c == null) {
+          c = this.getChunkAtBlock(x, y, z);
+@@ -281,7 +281,7 @@ public class Zone implements Json.Serializable, Disposable {
+    }
+ 
+    public BlockState getBlockState(Chunk candidateChunk, int x, int y, int z) {
+-      return this.get(candidateChunk, x, y, z, (c, lx, ly, lz) -> c.getBlockState(lx, ly, lz));
++      return this.get(candidateChunk, x, y, z, Chunk::getBlockState);
+    }
+ 
+    public BlockState getBlockState(Chunk candidateChunk, Chunk candidateChunkB, int x, int y, int z) {
+@@ -389,7 +389,7 @@ public class Zone implements Json.Serializable, Disposable {
+ 
+    @Override
+    public void dispose() {
+-      this.chunks.forEach(c -> c.dispose());
++      this.chunks.forEach(Chunk::dispose);
+    }
+ 
+    public void calculateSpawn() {
+diff --git a/src/main/java/finalforeach/cosmicreach/worldgen/ChunkColumnCoords.java b/src/main/java/finalforeach/cosmicreach/worldgen/ChunkColumnCoords.java
+index 983e847..a5f6d8a 100644
+--- a/src/main/java/finalforeach/cosmicreach/worldgen/ChunkColumnCoords.java
++++ b/src/main/java/finalforeach/cosmicreach/worldgen/ChunkColumnCoords.java
+@@ -1,4 +1,3 @@
+ package finalforeach.cosmicreach.worldgen;
+ 
+-public record ChunkColumnCoords(int chunkX, int chunkZ) {
+-}
++public record ChunkColumnCoords(int chunkX, int chunkZ) {}
+diff --git a/src/main/java/finalforeach/cosmicreach/worldgen/generators/FlatZoneGenerator.java b/src/main/java/finalforeach/cosmicreach/worldgen/generators/FlatZoneGenerator.java
+index e839b09..2304b99 100644
+--- a/src/main/java/finalforeach/cosmicreach/worldgen/generators/FlatZoneGenerator.java
++++ b/src/main/java/finalforeach/cosmicreach/worldgen/generators/FlatZoneGenerator.java
+@@ -15,12 +15,7 @@ public class FlatZoneGenerator extends ZoneGenerator {
+    BlockState stoneBlock = this.getBlockStateInstance("base:stone_basalt[default]");
+    BlockState grassBlock = this.getBlockStateInstance("base:grass[default]");
+    BlockState dirtBlock = this.getBlockStateInstance("base:dirt[default]");
+-   IBlockDataFactory<BlockState> chunkDataFactory = new IBlockDataFactory<BlockState>() {
+-      @Override
+-      public IBlockData<BlockState> createChunkData() {
+-         return new SingleBlockData<>(FlatZoneGenerator.this.airblock);
+-      }
+-   };
++   IBlockDataFactory<BlockState> chunkDataFactory = () -> new SingleBlockData<>(FlatZoneGenerator.this.airblock);
+ 
+    @Override
+    public void create() {
+diff --git a/src/main/java/finalforeach/cosmicreach/worldgen/generators/InfiniteBasicZoneGenerator.java b/src/main/java/finalforeach/cosmicreach/worldgen/generators/InfiniteBasicZoneGenerator.java
+index 985c516..b0c47fa 100644
+--- a/src/main/java/finalforeach/cosmicreach/worldgen/generators/InfiniteBasicZoneGenerator.java
++++ b/src/main/java/finalforeach/cosmicreach/worldgen/generators/InfiniteBasicZoneGenerator.java
+@@ -14,6 +14,7 @@ import finalforeach.cosmicreach.worldgen.ZoneGenerator;
+ import finalforeach.cosmicreach.worldgen.noise.SimplexNoise;
+ import finalforeach.cosmicreach.worldgen.noise.WhiteNoise;
+ 
++
+ public class InfiniteBasicZoneGenerator extends ZoneGenerator {
+    private SimplexNoise simplexNoise;
+    private SimplexNoise simplexNoise2;
+@@ -33,12 +34,7 @@ public class InfiniteBasicZoneGenerator extends ZoneGenerator {
+    BlockState sandBlock = Block.SAND.getDefaultBlockState();
+    BlockState oakLeavesBlock = Block.SNOW.getDefaultBlockState();
+    BlockState oakLogBlock = Block.TREELOG.getDefaultBlockState();
+-   IBlockDataFactory<BlockState> layeredChunkDataFactory = new IBlockDataFactory<BlockState>() {
+-      @Override
+-      public IBlockData<BlockState> createChunkData() {
+-         return new SingleBlockData<>(InfiniteBasicZoneGenerator.this.airblock);
+-      }
+-   };
++   IBlockDataFactory<BlockState> layeredChunkDataFactory = () -> new SingleBlockData<>(InfiniteBasicZoneGenerator.this.airblock);
+ 
+    @Override
+    public String getSaveKey() {
+diff --git a/src/main/java/finalforeach/cosmicreach/worldgen/generators/MoonZoneGenerator.java b/src/main/java/finalforeach/cosmicreach/worldgen/generators/MoonZoneGenerator.java
+index 5f5e421..c428c86 100644
+--- a/src/main/java/finalforeach/cosmicreach/worldgen/generators/MoonZoneGenerator.java
++++ b/src/main/java/finalforeach/cosmicreach/worldgen/generators/MoonZoneGenerator.java
+@@ -27,12 +27,7 @@ public class MoonZoneGenerator extends ZoneGenerator {
+    private WhiteNoise whiteNoiseCratersZ;
+    private WhiteNoise whiteNoiseCratersH;
+    private WhiteNoise whiteNoiseCratersV;
+-   IBlockDataFactory<BlockState> layeredChunkDataFactory = new IBlockDataFactory<BlockState>() {
+-      @Override
+-      public IBlockData<BlockState> createChunkData() {
+-         return new LayeredBlockData<>(MoonZoneGenerator.this.airblock);
+-      }
+-   };
++   IBlockDataFactory<BlockState> layeredChunkDataFactory = () -> new LayeredBlockData<>(MoonZoneGenerator.this.airblock);
+ 
+    @Override
+    public void create() {
+diff --git a/src/main/java/finalforeach/cosmicreach/worldgen/generators/NostalgicIslandZoneGenerator.java b/src/main/java/finalforeach/cosmicreach/worldgen/generators/NostalgicIslandZoneGenerator.java
+index da6baf3..a13d1c0 100644
+--- a/src/main/java/finalforeach/cosmicreach/worldgen/generators/NostalgicIslandZoneGenerator.java
++++ b/src/main/java/finalforeach/cosmicreach/worldgen/generators/NostalgicIslandZoneGenerator.java
+@@ -20,12 +20,7 @@ public class NostalgicIslandZoneGenerator extends ZoneGenerator {
+    BlockState sandBlock = this.getBlockStateInstance("base:sand[default]");
+    BlockState dirtBlock = this.getBlockStateInstance("base:dirt[default]");
+    private SimplexNoise simplexNoise;
+-   IBlockDataFactory<BlockState> chunkDataFactory = new IBlockDataFactory<BlockState>() {
+-      @Override
+-      public IBlockData<BlockState> createChunkData() {
+-         return new SingleBlockData<>(NostalgicIslandZoneGenerator.this.airblock);
+-      }
+-   };
++   IBlockDataFactory<BlockState> chunkDataFactory = () -> new SingleBlockData<>(NostalgicIslandZoneGenerator.this.airblock);
+ 
+    @Override
+    public void create() {
+-- 
+2.43.0.windows.1
+

@@ -1,0 +1,22 @@
+diff --git a/src/main/java/finalforeach/cosmicreach/savelib/blockdata/BlockDataCompactor.java b/src/main/java/finalforeach/cosmicreach/savelib/blockdata/BlockDataCompactor.java
+index d2cd63f..ad526d4 100644
+--- a/src/main/java/finalforeach/cosmicreach/savelib/blockdata/BlockDataCompactor.java
++++ b/src/main/java/finalforeach/cosmicreach/savelib/blockdata/BlockDataCompactor.java
+@@ -16,7 +16,7 @@ public class BlockDataCompactor {
+                label43:
+                for(int i = 0; i < 16; ++i) {
+                   for(int k = 0; k < 16; ++k) {
+-                     T curBlockState = layer.getBlockValue(layered, i, k);
++                     T curBlockState = (T) layer.getBlockValue(layered, i, k);
+                      if (layerBlockState == null) {
+                         layerBlockState = curBlockState;
+                      } else if (layerBlockState != curBlockState) {
+@@ -35,7 +35,7 @@ public class BlockDataCompactor {
+ 
+          if (layered.getPaletteSize() == 1) {
+             SingleBlockData<T> newChunkData = new SingleBlockData<>();
+-            blockData = newChunkData.fill(layered.getBlockValueFromPaletteId(0));
++            blockData = newChunkData.fill((T) layered.getBlockValueFromPaletteId(0));
+          }
+       }
+ 

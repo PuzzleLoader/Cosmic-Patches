@@ -1,0 +1,12 @@
+diff --git a/src/main/java/finalforeach/cosmicreach/savelib/blockdata/layers/SharedBlockSingleLayer.java b/src/main/java/finalforeach/cosmicreach/savelib/blockdata/layers/SharedBlockSingleLayer.java
+index 42a664c..af3c2ce 100644
+--- a/src/main/java/finalforeach/cosmicreach/savelib/blockdata/layers/SharedBlockSingleLayer.java
++++ b/src/main/java/finalforeach/cosmicreach/savelib/blockdata/layers/SharedBlockSingleLayer.java
+@@ -29,6 +29,6 @@ public class SharedBlockSingleLayer<T> extends BlockSingleLayer<T> {
+          }
+       }
+ 
+-      return shared;
++      return (SharedBlockSingleLayer<T>) shared;
+    }
+ }

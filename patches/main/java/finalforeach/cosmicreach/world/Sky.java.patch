@@ -1,0 +1,21 @@
+diff --git a/src/main/java/finalforeach/cosmicreach/world/Sky.java b/src/main/java/finalforeach/cosmicreach/world/Sky.java
+index 70a22ba..23fcc4a 100644
+--- a/src/main/java/finalforeach/cosmicreach/world/Sky.java
++++ b/src/main/java/finalforeach/cosmicreach/world/Sky.java
+@@ -15,7 +15,7 @@ import finalforeach.cosmicreach.rendering.shaders.GameShader;
+ import finalforeach.cosmicreach.rendering.shaders.SkyStarShader;
+ 
+ public class Sky {
+-   public static Sky currentSky = Sky.skyChoices.first();
++   public static Sky currentSky;
+    public static Array<Sky> skyChoices = new Array<>();
+    public String nameLangKey;
+    public Color currentSkyColor = new Color(0.0F, 0.0F, 0.0F, 1.0F);
+@@ -111,5 +111,7 @@ public class Sky {
+       skyChoices.add(new Sky("Orange_Sky", new Color(0.9F, 0.4F, 0.0F, 1.0F), new Color(0.9F, 0.6F, 0.3F, 1.0F), false));
+       skyChoices.add(new Sky("Pitch_Dark", Color.BLACK, Color.BLACK, false));
+       skyChoices.add(new Sky("Overcast", new Color(0.75F, 0.75F, 0.75F, 1.0F).mul(0.2F), new Color(0.75F, 0.75F, 0.75F, 1.0F).mul(0.75F), false));
++
++      currentSky = Sky.skyChoices.first();
+    }
+ }

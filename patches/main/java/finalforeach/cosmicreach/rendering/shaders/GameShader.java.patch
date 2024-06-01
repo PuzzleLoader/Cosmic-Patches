@@ -1,0 +1,25 @@
+diff --git a/src/main/java/finalforeach/cosmicreach/rendering/shaders/GameShader.java b/src/main/java/finalforeach/cosmicreach/rendering/shaders/GameShader.java
+index 2c28889..74a4c8b 100644
+--- a/src/main/java/finalforeach/cosmicreach/rendering/shaders/GameShader.java
++++ b/src/main/java/finalforeach/cosmicreach/rendering/shaders/GameShader.java
+@@ -76,7 +76,7 @@ public class GameShader {
+       }
+ 
+       sb.append("#endif //" + define + "\n");
+-      return version + sb.toString();
++      return version + sb;
+    }
+ 
+    public String preProcessShaderFile(String shaderText, GameShader.ShaderType shaderType) {
+@@ -279,9 +279,9 @@ public class GameShader {
+    public void unbind() {
+    }
+ 
+-   static enum ShaderType {
++   enum ShaderType {
+       FRAG,
+       VERT,
+-      IMPORTED;
++      IMPORTED
+    }
+ }

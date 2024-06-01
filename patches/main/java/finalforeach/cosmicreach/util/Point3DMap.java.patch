@@ -1,0 +1,22 @@
+diff --git a/src/main/java/finalforeach/cosmicreach/util/Point3DMap.java b/src/main/java/finalforeach/cosmicreach/util/Point3DMap.java
+index c946e44..b77f1f8 100644
+--- a/src/main/java/finalforeach/cosmicreach/util/Point3DMap.java
++++ b/src/main/java/finalforeach/cosmicreach/util/Point3DMap.java
+@@ -81,7 +81,7 @@ public class Point3DMap<T> implements IPoint3DMap<T> {
+ 
+    @Override
+    public void forEach(Consumer<T> consumer) {
+-      this.map.forEach(lt -> ((IntMap)lt.value).forEach(t -> consumer.accept((T)t.value)));
++      this.map.forEach(lt -> lt.value.forEach(t -> consumer.accept((T)t.value)));
+    }
+ 
+    @Override
+@@ -90,7 +90,7 @@ public class Point3DMap<T> implements IPoint3DMap<T> {
+          long l = lt.key;
+          int x = (int)(l >> 32);
+          int y = (int)(l & 4294967295L);
+-         ((IntMap)lt.value).forEach(it -> {
++         lt.value.forEach(it -> {
+             int z = it.key;
+             consumer.consume((T)it.value, x, y, z);
+          });

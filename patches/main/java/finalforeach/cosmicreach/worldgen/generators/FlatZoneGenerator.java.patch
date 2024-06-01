@@ -1,0 +1,18 @@
+diff --git a/src/main/java/finalforeach/cosmicreach/worldgen/generators/FlatZoneGenerator.java b/src/main/java/finalforeach/cosmicreach/worldgen/generators/FlatZoneGenerator.java
+index e839b09..2304b99 100644
+--- a/src/main/java/finalforeach/cosmicreach/worldgen/generators/FlatZoneGenerator.java
++++ b/src/main/java/finalforeach/cosmicreach/worldgen/generators/FlatZoneGenerator.java
+@@ -15,12 +15,7 @@ public class FlatZoneGenerator extends ZoneGenerator {
+    BlockState stoneBlock = this.getBlockStateInstance("base:stone_basalt[default]");
+    BlockState grassBlock = this.getBlockStateInstance("base:grass[default]");
+    BlockState dirtBlock = this.getBlockStateInstance("base:dirt[default]");
+-   IBlockDataFactory<BlockState> chunkDataFactory = new IBlockDataFactory<BlockState>() {
+-      @Override
+-      public IBlockData<BlockState> createChunkData() {
+-         return new SingleBlockData<>(FlatZoneGenerator.this.airblock);
+-      }
+-   };
++   IBlockDataFactory<BlockState> chunkDataFactory = () -> new SingleBlockData<>(FlatZoneGenerator.this.airblock);
+ 
+    @Override
+    public void create() {

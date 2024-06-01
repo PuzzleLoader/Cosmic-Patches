@@ -1,0 +1,10 @@
+diff --git a/src/main/java/finalforeach/cosmicreach/worldgen/ChunkColumnCoords.java b/src/main/java/finalforeach/cosmicreach/worldgen/ChunkColumnCoords.java
+index 983e847..a5f6d8a 100644
+--- a/src/main/java/finalforeach/cosmicreach/worldgen/ChunkColumnCoords.java
++++ b/src/main/java/finalforeach/cosmicreach/worldgen/ChunkColumnCoords.java
+@@ -1,4 +1,3 @@
+ package finalforeach.cosmicreach.worldgen;
+ 
+-public record ChunkColumnCoords(int chunkX, int chunkZ) {
+-}
++public record ChunkColumnCoords(int chunkX, int chunkZ) {}

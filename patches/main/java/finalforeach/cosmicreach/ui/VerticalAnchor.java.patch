@@ -1,0 +1,11 @@
+diff --git a/src/main/java/finalforeach/cosmicreach/ui/VerticalAnchor.java b/src/main/java/finalforeach/cosmicreach/ui/VerticalAnchor.java
+index 775056b..095e38d 100644
+--- a/src/main/java/finalforeach/cosmicreach/ui/VerticalAnchor.java
++++ b/src/main/java/finalforeach/cosmicreach/ui/VerticalAnchor.java
+@@ -3,5 +3,5 @@ package finalforeach.cosmicreach.ui;
+ public enum VerticalAnchor {
+    TOP_ALIGNED,
+    CENTERED,
+-   BOTTOM_ALIGNED;
++   BOTTOM_ALIGNED
+ }

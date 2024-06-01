@@ -1,0 +1,16 @@
+diff --git a/src/main/java/finalforeach/cosmicreach/rendering/ChunkMeshGroup.java b/src/main/java/finalforeach/cosmicreach/rendering/ChunkMeshGroup.java
+index 74059cf..7e85ec1 100644
+--- a/src/main/java/finalforeach/cosmicreach/rendering/ChunkMeshGroup.java
++++ b/src/main/java/finalforeach/cosmicreach/rendering/ChunkMeshGroup.java
+@@ -30,9 +30,10 @@ public class ChunkMeshGroup implements IChunkMeshGroup<Array<MeshData>>, Disposa
+       return chunk.getBlockData() == null ? null : getMeshData(chunk);
+    }
+ 
++   @SuppressWarnings("unchecked")
+    private static Array<MeshData> getMeshData(ISavedChunk<?> savedChunk) {
+       Chunk chunk = (Chunk)savedChunk;
+-      IBlockData<BlockState> blockData = chunk.getBlockData();
++      IBlockData<BlockState> blockData = (IBlockData<BlockState>) chunk.getBlockData();
+       BlockState airBlockState = Block.AIR.getDefaultBlockState();
+       if (blockData.isEntirely(airBlockState)) {
+          return emptyMeshDatas;

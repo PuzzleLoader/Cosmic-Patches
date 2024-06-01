@@ -1,0 +1,20 @@
+diff --git a/src/main/java/finalforeach/cosmicreach/world/World.java b/src/main/java/finalforeach/cosmicreach/world/World.java
+index b1fcac8..76a9072 100644
+--- a/src/main/java/finalforeach/cosmicreach/world/World.java
++++ b/src/main/java/finalforeach/cosmicreach/world/World.java
+@@ -45,12 +45,12 @@ public class World implements Json.Serializable {
+    }
+ 
+    public static World createNew(String worldDisplayName, String worldSeed, String defaultZoneId, ZoneGenerator zoneGen) {
+-      long seed = 0L;
+-      if (worldSeed != null && worldSeed.length() > 0) {
++      long seed;
++      if (worldSeed != null && !worldSeed.isEmpty()) {
+          try {
+             seed = Long.parseLong(worldSeed);
+          } catch (Exception var7) {
+-            seed = (long)worldSeed.hashCode();
++            seed = worldSeed.hashCode();
+          }
+       } else {
+          seed = new Random().nextLong();

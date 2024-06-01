@@ -1,0 +1,10 @@
+diff --git a/src/main/java/finalforeach/cosmicreach/world/RegionCoords.java b/src/main/java/finalforeach/cosmicreach/world/RegionCoords.java
+index 3ca3102..a458d9e 100644
+--- a/src/main/java/finalforeach/cosmicreach/world/RegionCoords.java
++++ b/src/main/java/finalforeach/cosmicreach/world/RegionCoords.java
+@@ -1,4 +1,3 @@
+ package finalforeach.cosmicreach.world;
+ 
+-public record RegionCoords(int x, int y, int z) {
+-}
++public record RegionCoords(int x, int y, int z) {}

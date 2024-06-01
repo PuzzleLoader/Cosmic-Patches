@@ -1,0 +1,21 @@
+diff --git a/src/main/java/finalforeach/cosmicreach/io/CosmicReachBinaryDeserializer.java b/src/main/java/finalforeach/cosmicreach/io/CosmicReachBinaryDeserializer.java
+index 84958b4..b15760f 100644
+--- a/src/main/java/finalforeach/cosmicreach/io/CosmicReachBinaryDeserializer.java
++++ b/src/main/java/finalforeach/cosmicreach/io/CosmicReachBinaryDeserializer.java
+@@ -244,6 +244,7 @@ public class CosmicReachBinaryDeserializer {
+       return arr;
+    }
+ 
++   @SuppressWarnings("unchecked")
+    protected <T> T newInstance(Class<T> type) {
+       try {
+          return ClassReflection.newInstance(type);
+@@ -254,7 +255,7 @@ public class CosmicReachBinaryDeserializer {
+             Constructor constructor = ClassReflection.getDeclaredConstructor(type);
+             constructor.setAccessible(true);
+             return (T)constructor.newInstance();
+-         } catch (SecurityException var4) {
++         } catch (SecurityException ignored) {
+          } catch (ReflectionException var5) {
+             if (type.isArray()) {
+                throw new SerializationException("Encountered object when expected array of type: " + type.getName(), var7);

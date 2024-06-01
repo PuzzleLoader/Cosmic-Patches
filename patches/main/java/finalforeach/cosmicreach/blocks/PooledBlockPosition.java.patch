@@ -1,0 +1,15 @@
+diff --git a/src/main/java/finalforeach/cosmicreach/blocks/PooledBlockPosition.java b/src/main/java/finalforeach/cosmicreach/blocks/PooledBlockPosition.java
+index 509f777..5fe2f7f 100644
+--- a/src/main/java/finalforeach/cosmicreach/blocks/PooledBlockPosition.java
++++ b/src/main/java/finalforeach/cosmicreach/blocks/PooledBlockPosition.java
+@@ -11,8 +11,9 @@ public class PooledBlockPosition<TSelf extends BlockPosition> extends BlockPosit
+       this.positionPool = positionPool;
+    }
+ 
++   @SuppressWarnings("unchecked")
+    @Override
+    public void free() {
+-      this.positionPool.free((TSelf)this);
++      this.positionPool.free((TSelf) this);
+    }
+ }

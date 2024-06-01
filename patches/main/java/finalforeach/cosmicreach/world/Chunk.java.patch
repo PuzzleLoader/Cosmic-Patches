@@ -1,0 +1,94 @@
+diff --git a/src/main/java/finalforeach/cosmicreach/world/Chunk.java b/src/main/java/finalforeach/cosmicreach/world/Chunk.java
+index ebb3772..38e9224 100644
+--- a/src/main/java/finalforeach/cosmicreach/world/Chunk.java
++++ b/src/main/java/finalforeach/cosmicreach/world/Chunk.java
+@@ -26,6 +26,7 @@ import finalforeach.cosmicreach.util.IPoint3DMap;
+ import finalforeach.cosmicreach.util.Point3DMap;
+ import java.util.function.Consumer;
+ 
++@SuppressWarnings({"unchecked", "unused"})
+ public class Chunk implements ISavedChunk<BlockState> {
+    public static final int CHUNK_WIDTH = 16;
+    public static final int NUM_BLOCKS_IN_CHUNK = 4096;
+@@ -74,7 +75,8 @@ public class Chunk implements ISavedChunk<BlockState> {
+    public BlockEntity setBlockEntity(BlockState blockState, int localX, int localY, int localZ) {
+       Block block = blockState != null ? blockState.getBlock() : null;
+       if (this.blockEntities == null) {
+-         if (block.blockEntityId == null) {
++          assert block != null;
++          if (block.blockEntityId == null) {
+             return null;
+          }
+ 
+@@ -84,7 +86,8 @@ public class Chunk implements ISavedChunk<BlockState> {
+       if (this.blockEntities.size() > 0) {
+          BlockEntity oldEntity = this.blockEntities.get(localX, localY, localZ);
+          if (oldEntity != null) {
+-            if (oldEntity.getBlockEntityId().equals(block.blockEntityId)) {
++             assert block != null;
++             if (oldEntity.getBlockEntityId().equals(block.blockEntityId)) {
+                return oldEntity;
+             }
+ 
+@@ -92,18 +95,18 @@ public class Chunk implements ISavedChunk<BlockState> {
+          }
+       }
+ 
+-      if (block.blockEntityId != null) {
+-         BlockEntity blockEntity = BlockEntityCreator.get(blockState, this.blockX + localX, this.blockY + localY, this.blockZ + localZ);
+-         this.blockEntities.put(blockEntity, localX, localY, localZ);
+-         blockEntity.onCreate(blockState);
+-         return blockEntity;
++       assert block != null;
++       if (block.blockEntityId != null) {
++          BlockEntity blockEntity = BlockEntityCreator.get(blockState, this.blockX + localX, this.blockY + localY, this.blockZ + localZ);
++          this.blockEntities.put(blockEntity, localX, localY, localZ);
++          blockEntity.onCreate(blockState);
++          return blockEntity;
+       } else {
+-         this.blockEntities.remove(localX, localY, localZ);
+-         if (this.blockEntities.size() == 0) {
+-            this.blockEntities = null;
+-         }
+-
+-         return null;
++          this.blockEntities.remove(localX, localY, localZ);
++          if (this.blockEntities.size() == 0) {
++             this.blockEntities = null;
++          }
++          return null;
+       }
+    }
+ 
+@@ -149,18 +152,17 @@ public class Chunk implements ISavedChunk<BlockState> {
+ 
+    @Override
+    public int getMaxNonEmptyBlockIdxYXZ() {
+-      IBlockData numBlocksPerLayer = this.blockData;
++      IBlockData<?> numBlocksPerLayer = this.blockData;
+       if (!(numBlocksPerLayer instanceof LayeredBlockData)) {
+          return 4096;
+       } else {
+-         LayeredBlockData<BlockState> layered = (LayeredBlockData)numBlocksPerLayer;
+-         int numBlocksPerLayer = 256;
++         LayeredBlockData<BlockState> layered = (LayeredBlockData<BlockState>) numBlocksPerLayer;
+          int max = 4096;
+ 
+          for(int l = 15; l >= 0; --l) {
+             IBlockLayer<BlockState> layer = layered.getLayer(l);
+-            if (layer instanceof BlockSingleLayer s) {
+-               BlockState block = s.blockValue;
++            if (layer instanceof BlockSingleLayer<?> s) {
++               BlockState block = (BlockState) s.blockValue;
+                if (!block.hasEmptyModel()) {
+                   break;
+                }
+@@ -308,7 +310,7 @@ public class Chunk implements ISavedChunk<BlockState> {
+             }
+          }
+       } else if (this.blockEntities != null && this.blockEntities.size() > 0) {
+-         this.blockEntities.forEach(blockEntity -> blockEntity.onRemove());
++         this.blockEntities.forEach(BlockEntity::onRemove);
+          this.blockEntities = null;
+       }
+    }

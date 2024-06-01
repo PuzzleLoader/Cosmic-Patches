@@ -1,0 +1,20 @@
+diff --git a/src/main/java/finalforeach/cosmicreach/savelib/blockdata/layers/SharedBlockSingleLayer.java b/src/main/java/finalforeach/cosmicreach/savelib/blockdata/layers/SharedBlockSingleLayer.java
+index 42a664c..1ad3c71 100644
+--- a/src/main/java/finalforeach/cosmicreach/savelib/blockdata/layers/SharedBlockSingleLayer.java
++++ b/src/main/java/finalforeach/cosmicreach/savelib/blockdata/layers/SharedBlockSingleLayer.java
+@@ -17,6 +17,7 @@ public class SharedBlockSingleLayer<T> extends BlockSingleLayer<T> {
+       }
+    }
+ 
++   @SuppressWarnings("unchecked")
+    public static <T> SharedBlockSingleLayer<T> get(LayeredBlockData<T> chunkData, T blockValue) {
+       SharedBlockSingleLayer<?> shared = sharedInstances.get(blockValue);
+       if (shared == null) {
+@@ -29,6 +30,6 @@ public class SharedBlockSingleLayer<T> extends BlockSingleLayer<T> {
+          }
+       }
+ 
+-      return shared;
++      return (SharedBlockSingleLayer<T>) shared;
+    }
+ }

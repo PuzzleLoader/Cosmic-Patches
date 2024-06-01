@@ -1,0 +1,11 @@
+diff --git a/src/main/java/finalforeach/cosmicreach/items/ItemMergeStrategy.java b/src/main/java/finalforeach/cosmicreach/items/ItemMergeStrategy.java
+index da9c492..657b8d9 100644
+--- a/src/main/java/finalforeach/cosmicreach/items/ItemMergeStrategy.java
++++ b/src/main/java/finalforeach/cosmicreach/items/ItemMergeStrategy.java
+@@ -2,5 +2,5 @@ package finalforeach.cosmicreach.items;
+ 
+ public enum ItemMergeStrategy {
+    PRESERVE,
+-   ONLY_ONE_SLOT;
++   ONLY_ONE_SLOT
+ }

@@ -1,8 +1,8 @@
 diff --git a/src/main/java/finalforeach/cosmicreach/world/Chunk.java b/src/main/java/finalforeach/cosmicreach/world/Chunk.java
-index 6a98deb..08f878d 100644
+index a819628..1f3a55c 100644
 --- a/src/main/java/finalforeach/cosmicreach/world/Chunk.java
 +++ b/src/main/java/finalforeach/cosmicreach/world/Chunk.java
-@@ -109,13 +109,12 @@ public class Chunk implements ISavedChunk<BlockState> {
+@@ -60,13 +60,12 @@ public class Chunk implements ISavedChunk<BlockState> {
           return 4096;
        } else {
           LayeredBlockData<BlockState> layered = (LayeredBlockData)numBlocksPerLayer;

@@ -1,8 +1,8 @@
 diff --git a/src/main/java/finalforeach/cosmicreach/rendering/blockmodels/BlockModelJson.java b/src/main/java/finalforeach/cosmicreach/rendering/blockmodels/BlockModelJson.java
-index 436dd31..931180a 100644
+index b33233a..2f2615d 100644
 --- a/src/main/java/finalforeach/cosmicreach/rendering/blockmodels/BlockModelJson.java
 +++ b/src/main/java/finalforeach/cosmicreach/rendering/blockmodels/BlockModelJson.java
-@@ -173,10 +173,10 @@ public class BlockModelJson extends BlockModel {
+@@ -167,10 +167,10 @@ public class BlockModelJson extends BlockModel {
                    }
                    break;
                 case 270:

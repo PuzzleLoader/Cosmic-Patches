@@ -1,0 +1,22 @@
+diff --git a/src/main/java/finalforeach/cosmicreach/io/SaveLocation.java b/src/main/java/finalforeach/cosmicreach/io/SaveLocation.java
+index 66f2428..1643447 100644
+--- a/src/main/java/finalforeach/cosmicreach/io/SaveLocation.java
++++ b/src/main/java/finalforeach/cosmicreach/io/SaveLocation.java
+@@ -12,15 +12,13 @@ public final class SaveLocation {
+          throw new RuntimeException("`" + folder + "` is not a directory! Does exist: " + folder.exists());
+       } else {
+          try {
+-            if (RuntimeInfo.isMac) {
+-               Runtime.getRuntime().exec(new String[]{"open", folder.getAbsolutePath()});
+-            } else if (Desktop.isDesktopSupported()) {
++            if (Desktop.isDesktopSupported()) {
+                Desktop.getDesktop().open(folder);
+             } else {
+                throw new RuntimeException("java.awt.Desktop is not supported");
+             }
+          } catch (Throwable var2) {
+-            if (RuntimeInfo.isWindows) {
++            if (RuntimeInfo.isWindows()) {
+                Runtime.getRuntime().exec("explorer.exe \"" + folder.getAbsolutePath() + "\"");
+             } else {
+                throw var2;

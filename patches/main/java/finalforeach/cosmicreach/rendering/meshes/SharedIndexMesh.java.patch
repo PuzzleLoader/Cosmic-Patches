@@ -1,0 +1,27 @@
+diff --git a/src/main/java/finalforeach/cosmicreach/rendering/meshes/SharedIndexMesh.java b/src/main/java/finalforeach/cosmicreach/rendering/meshes/SharedIndexMesh.java
+index 51c421d..e8e31c4 100644
+--- a/src/main/java/finalforeach/cosmicreach/rendering/meshes/SharedIndexMesh.java
++++ b/src/main/java/finalforeach/cosmicreach/rendering/meshes/SharedIndexMesh.java
+@@ -3,7 +3,6 @@ package finalforeach.cosmicreach.rendering.meshes;
+ import com.badlogic.gdx.Gdx;
+ import com.badlogic.gdx.graphics.VertexAttributes;
+ import com.badlogic.gdx.graphics.glutils.ShaderProgram;
+-import com.badlogic.gdx.graphics.glutils.VertexData;
+ import com.badlogic.gdx.utils.Disposable;
+ 
+ public class SharedIndexMesh extends GameMesh implements Disposable {
+@@ -53,14 +52,4 @@ public class SharedIndexMesh extends GameMesh implements Disposable {
+    public void dispose() {
+       this.vertices.dispose();
+    }
+-
+-   @Override
+-   public VertexData getVertices() {
+-      return this.vertices;
+-   }
+-
+-   @Override
+-   public void setAutoBind(boolean autoBind) {
+-      this.autoBind = autoBind;
+-   }
+ }

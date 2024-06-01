@@ -1,0 +1,66 @@
+diff --git a/src/main/resources/shaders/chunk.frag.glsl b/src/main/resources/shaders/chunk.frag.glsl
+index 5319369..76d7731 100644
+--- a/src/main/resources/shaders/chunk.frag.glsl
++++ b/src/main/resources/shaders/chunk.frag.glsl
+@@ -7,6 +7,7 @@ uniform vec3 skyAmbientColor;
+ 
+ in vec2 v_texCoord0;
+ in vec3 worldPos;
++in float shading;
+ in vec4 blocklight;
+ 
+ uniform sampler2D texDiffuse;
+@@ -15,8 +16,23 @@ out vec4 outColor;
+ 
+ void main() 
+ {
++    //vec2 numTiles = floor(v_texCoord0);
+     vec2 tilingTexCoords = v_texCoord0;
+-
++    
++   /* if(numTiles.xy != vec2(0, 0)) // If greedy
++    {
++        // Get the original texture coordinates
++        tilingTexCoords = (v_texCoord0 - numTiles);
++        
++        // Get the top-left corner of the tile's texture coordinates
++        vec2 flooredTexCoords = floor((v_texCoord0 - numTiles) * 16) / 16;
++        numTiles = numTiles + vec2(1,1);
++
++        // Use modulo to repeat the tile
++        //tilingTexCoords = flooredTexCoords + mod(((tilingTexCoords - flooredTexCoords) * numTiles) * 16, 1) / 16;
++    }*/
++
++    //vec4 texColor = texture(texDiffuse, tilingTexCoords);
+     vec4 texColor = texture(texDiffuse, v_texCoord0);
+ 
+     if(texColor.a == 0)
+@@ -24,12 +40,23 @@ void main()
+         discard;
+     }
+ 
++    
++    //vec3 lightTint = shading * max((blocklight.rgb), blocklight.a * skyAmbientColor);
++    //lightTint = shading * max(exp(blocklight.rgb * 15 * 0.2) / exp(15.0*0.02) / 15, blocklight.a * skyAmbientColor);
++    //lightTint = shading * max(pow(blocklight.rgb, vec3(2)), blocklight.a * skyAmbientColor);
++
+     // https://www.desmos.com/calculator
+     // y\ =\ \frac{30}{1+e^{-15\left(\frac{x}{25}\right)^{2}}}-15
+     vec3 it =  pow(15*blocklight.rgb / 25.0, vec3(2));
+     vec3 t = 30.0/(1.0 + exp(-15.0 * it)) - 15;
+-    vec3 lightTint = max(t/15, blocklight.a * skyAmbientColor);
+-
+-
+-    outColor = vec4(texColor.rgb * lightTint, texColor.a);
++    vec3 lightTint = shading * max(t/15, blocklight.a * skyAmbientColor);
++
++    //lightTint = vec3(1);
++    //outColor = vec4(vec3(shading), texColor.a);
++    /*int regionSize = 16 * 16;
++    if(worldPos.x - (regionSize * floor(worldPos.x / regionSize))==0){texColor.r = 1; texColor.a=2;}
++    if(worldPos.y - (regionSize * floor(worldPos.y / regionSize))==0){texColor.g = 1; texColor.a=2;}
++    if(worldPos.z - (regionSize * floor(worldPos.z / regionSize))==0){texColor.b = 1; texColor.a=2;}*/
++    outColor = vec4(texColor.rgb * lightTint, texColor.a);// * 0.5);
++    //outColor = blocklight * texColor;
+ }
+\ No newline at end of file

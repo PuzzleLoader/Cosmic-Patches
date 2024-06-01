@@ -1,0 +1,16 @@
+diff --git a/src/main/java/finalforeach/cosmicreach/entities/Player.java b/src/main/java/finalforeach/cosmicreach/entities/Player.java
+index 0b25a6e..229cac1 100644
+--- a/src/main/java/finalforeach/cosmicreach/entities/Player.java
++++ b/src/main/java/finalforeach/cosmicreach/entities/Player.java
+@@ -181,9 +181,9 @@ public class Player {
+       }
+ 
+       this.proneCheck(zone);
+-      float playerSpeed = 200.0F;
++      float playerSpeed = 160.0F;
+       if (this.isSprinting) {
+-         playerSpeed *= 2.0F;
++         playerSpeed *= 3.0F;
+       }
+ 
+       if (this.isProne) {

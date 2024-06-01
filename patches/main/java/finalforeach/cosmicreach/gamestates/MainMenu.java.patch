@@ -1,0 +1,13 @@
+diff --git a/src/main/java/finalforeach/cosmicreach/gamestates/MainMenu.java b/src/main/java/finalforeach/cosmicreach/gamestates/MainMenu.java
+index 51b9b0c..2202be3 100644
+--- a/src/main/java/finalforeach/cosmicreach/gamestates/MainMenu.java
++++ b/src/main/java/finalforeach/cosmicreach/gamestates/MainMenu.java
+@@ -104,7 +104,7 @@ public class MainMenu extends GameState {
+          FontRenderer.drawText(batch, this.uiViewport, controllerWarning, 8.0F, y, HorizontalAnchor.LEFT_ALIGNED, VerticalAnchor.BOTTOM_ALIGNED);
+       }
+ 
+-      if (RuntimeInfo.isMac) {
++      if (RuntimeInfo.isMac()) {
+          String macWarning = "WARNING: Mac is not supported at this time. The game is unlikely to work.";
+          FontRenderer.drawText(batch, this.uiViewport, macWarning, 8.0F, y, HorizontalAnchor.CENTERED, VerticalAnchor.CENTERED);
+       }

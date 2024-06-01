@@ -1,0 +1,19 @@
+diff --git a/src/main/java/finalforeach/cosmicreach/rendering/blockmodels/BlockModelJsonCuboidFace.java b/src/main/java/finalforeach/cosmicreach/rendering/blockmodels/BlockModelJsonCuboidFace.java
+index 50386c1..7c599c7 100644
+--- a/src/main/java/finalforeach/cosmicreach/rendering/blockmodels/BlockModelJsonCuboidFace.java
++++ b/src/main/java/finalforeach/cosmicreach/rendering/blockmodels/BlockModelJsonCuboidFace.java
+@@ -26,10 +26,10 @@ public class BlockModelJsonCuboidFace {
+    public float vC;
+    public float uD;
+    public float vD;
+-   public int modelUvIdxA;
+-   public int modelUvIdxB;
+-   public int modelUvIdxC;
+-   public int modelUvIdxD;
++   public int modelUboIdxA;
++   public int modelUboIdxB;
++   public int modelUboIdxC;
++   public int modelUboIdxD;
+    public int uvRotation;
+    public int vertexIndexA;
+    public int vertexIndexB;

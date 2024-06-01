@@ -1,0 +1,58 @@
+diff --git a/src/main/java/finalforeach/cosmicreach/world/BlockSelection.java b/src/main/java/finalforeach/cosmicreach/world/BlockSelection.java
+index 855e22f..dda0298 100644
+--- a/src/main/java/finalforeach/cosmicreach/world/BlockSelection.java
++++ b/src/main/java/finalforeach/cosmicreach/world/BlockSelection.java
+@@ -29,7 +29,7 @@ public class BlockSelection {
+    private BlockState lastSelectedBlockState;
+    private static BlockState selectedBlockState;
+    private BlockPosition lastSelectedBlockPos;
+-   private static BlockPosition selectedBlockPos;
++   private BlockPosition selectedBlockPos;
+    private Array<BoundingBox> blockBoundingBoxes = new Array<>(4);
+    private Ray ray = new Ray();
+    private BoundingBox tmpBoundingBox = new BoundingBox();
+@@ -47,15 +47,11 @@ public class BlockSelection {
+       return !enabled ? null : selectedBlockState;
+    }
+ 
+-   public static BlockPosition getBlockPositionLookingAt() {
+-      return !enabled ? null : selectedBlockPos;
+-   }
+-
+    public void render(Camera worldCamera) {
+       if (enabled) {
+          if (selectedBlockState != null) {
+-            if (selectedBlockState != this.lastSelectedBlockState || selectedBlockPos != this.lastSelectedBlockPos) {
+-               selectedBlockState.getAllBoundingBoxes(this.blockBoundingBoxes, selectedBlockPos);
++            if (selectedBlockState != this.lastSelectedBlockState || this.selectedBlockPos != this.lastSelectedBlockPos) {
++               selectedBlockState.getAllBoundingBoxes(this.blockBoundingBoxes, this.selectedBlockPos);
+ 
+                for(BoundingBox bb : this.blockBoundingBoxes) {
+                   bb.min.sub(0.001F);
+@@ -64,7 +60,7 @@ public class BlockSelection {
+                }
+ 
+                this.lastSelectedBlockState = selectedBlockState;
+-               this.lastSelectedBlockPos = selectedBlockPos;
++               this.lastSelectedBlockPos = this.selectedBlockPos;
+             }
+ 
+             shapeRenderer.setProjectionMatrix(worldCamera.combined);
+@@ -203,7 +199,7 @@ public class BlockSelection {
+                         breakingBlockPos = curBlockPos;
+                         enabled = true;
+                         selectedBlockState = blockState;
+-                        selectedBlockPos = curBlockPos;
++                        this.selectedBlockPos = curBlockPos;
+                      }
+ 
+                      if (placingBlockPos == null && blockState.canRaycastForPlaceOn() && lastBlockPosInQueue != null) {
+@@ -212,7 +208,7 @@ public class BlockSelection {
+                            placingBlockPos = lastBlockPosInQueue;
+                            enabled = true;
+                            selectedBlockState = blockState;
+-                           selectedBlockPos = curBlockPos;
++                           this.selectedBlockPos = curBlockPos;
+                         }
+                      }
+ 

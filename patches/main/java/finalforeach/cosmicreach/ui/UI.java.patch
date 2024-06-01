@@ -1,0 +1,13 @@
+diff --git a/src/main/java/finalforeach/cosmicreach/ui/UI.java b/src/main/java/finalforeach/cosmicreach/ui/UI.java
+index a9e19f5..95613ce 100644
+--- a/src/main/java/finalforeach/cosmicreach/ui/UI.java
++++ b/src/main/java/finalforeach/cosmicreach/ui/UI.java
+@@ -142,7 +142,7 @@ public class UI implements InputProcessor {
+       String blockStr = "";
+       BlockState bs = BlockSelection.getBlockLookingAt();
+       if (bs != null) {
+-         blockStr = blockStr + "Looking at " + BlockSelection.getBlockPositionLookingAt() + ": " + bs.getSaveKey();
++         blockStr = blockStr + "Looking at: " + bs.getSaveKey();
+       }
+ 
+       int blockLight = playerZone.getBlockLight(chunk, bx, by, bz);

@@ -1,0 +1,14 @@
+diff --git a/src/main/java/finalforeach/cosmicreach/savelib/blockdata/LayeredBlockData.java b/src/main/java/finalforeach/cosmicreach/savelib/blockdata/LayeredBlockData.java
+index 2605ae7..9d68ea3 100644
+--- a/src/main/java/finalforeach/cosmicreach/savelib/blockdata/LayeredBlockData.java
++++ b/src/main/java/finalforeach/cosmicreach/savelib/blockdata/LayeredBlockData.java
+@@ -179,8 +179,7 @@ public class LayeredBlockData<T> implements IBlockData<T> {
+          for(int i = 0; i < 16; ++i) {
+             for(int j = 0; j < 16; ++j) {
+                for(int k = 0; k < 16; ++k) {
+-                  T curBlockValue = this.getBlockValue(i, j, k);
+-                  tempBlockData.setBlockValue(curBlockValue, i, j, k);
++                  tempBlockData.setBlockValue(this.getBlockValue(i, j, k), i, j, k);
+                }
+             }
+          }

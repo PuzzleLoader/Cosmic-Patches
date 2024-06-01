@@ -1,0 +1,89 @@
+diff --git a/src/main/java/finalforeach/cosmicreach/rendering/ChunkBatch.java b/src/main/java/finalforeach/cosmicreach/rendering/ChunkBatch.java
+index 36ff368..c8614c5 100644
+--- a/src/main/java/finalforeach/cosmicreach/rendering/ChunkBatch.java
++++ b/src/main/java/finalforeach/cosmicreach/rendering/ChunkBatch.java
+@@ -1,14 +1,11 @@
+ package finalforeach.cosmicreach.rendering;
+ 
+ import com.badlogic.gdx.graphics.Camera;
+-import com.badlogic.gdx.graphics.VertexAttributes;
+ import com.badlogic.gdx.math.Frustum;
+ import com.badlogic.gdx.math.Vector3;
+ import com.badlogic.gdx.math.collision.BoundingBox;
+ import com.badlogic.gdx.utils.Array;
+-import finalforeach.cosmicreach.RuntimeInfo;
+-import finalforeach.cosmicreach.rendering.meshes.IGameMesh;
+-import finalforeach.cosmicreach.rendering.meshes.IntIndexData;
++import finalforeach.cosmicreach.rendering.meshes.SharedIndexMesh;
+ import finalforeach.cosmicreach.rendering.shaders.GameShader;
+ import finalforeach.cosmicreach.world.Chunk;
+ import finalforeach.cosmicreach.world.IChunkMeshGroup;
+@@ -25,7 +22,7 @@ public class ChunkBatch {
+    Array<MeshData> meshDatasToAdd = new Array<>(4);
+    Array<Chunk> chunks = new Array<>(4);
+    Array<Chunk> visibleChunks = new Array<>(4);
+-   IGameMesh mesh;
++   SharedIndexMesh mesh;
+    BoundingBox boundingBox;
+    MeshData combined;
+    boolean seen;
+@@ -50,7 +47,7 @@ public class ChunkBatch {
+    public void dispose(boolean forceUnload) {
+       if (this.mesh != null) {
+          if (!forceUnload) {
+-            FloatBuffer meshVerts = this.mesh.getVertices().getBuffer(false);
++            FloatBuffer meshVerts = this.mesh.vertices.getBuffer(false);
+ 
+             for(MeshData mData : this.meshDataMetadatas.keySet()) {
+                ChunkBatch.MeshDataMetadata meta = this.meshDataMetadatas.get(mData);
+@@ -106,7 +103,7 @@ public class ChunkBatch {
+       this.meshDatasToAdd.size = 0;
+       this.visibleChunks.size = 0;
+       if (this.mesh != null) {
+-         this.mesh.setAutoBind(false);
++         this.mesh.autoBind = false;
+          if (lastBoundShader != this.shader) {
+             lastBoundShader = this.shader;
+             lastBoundShader.bind(worldCamera);
+@@ -135,7 +132,7 @@ public class ChunkBatch {
+ 
+       this.combined.getVertices().ensureCapacity(numVert);
+       if (this.mesh != null) {
+-         FloatBuffer meshVerts = this.mesh.getVertices().getBuffer(false);
++         FloatBuffer meshVerts = this.mesh.vertices.getBuffer(false);
+ 
+          for(MeshData mData : this.meshDataMetadatas.keySet()) {
+             ChunkBatch.MeshDataMetadata meta = this.meshDataMetadatas.get(mData);
+@@ -186,18 +183,7 @@ public class ChunkBatch {
+       }
+ 
+       if (this.mesh == null) {
+-         if (RuntimeInfo.useSharedIndices) {
+-            this.mesh = combined.toSharedIndexMesh(true);
+-         } else {
+-            VertexAttributes a = new VertexAttributes(this.shader.allVertexAttributes);
+-            if (combined.indices.isEmpty()) {
+-               int numIndices = combined.getVertices().size / (a.vertexSize / 4) * 6 / 4;
+-               combined.indices.addAll(IntIndexData.createQuadIndices(numIndices));
+-            }
+-
+-            this.mesh = combined.toIntIndexedMesh(true);
+-         }
+-
++         this.mesh = combined.toSharedIndexMesh(true);
+          if (this.mesh == null) {
+             return;
+          }
+@@ -205,10 +191,8 @@ public class ChunkBatch {
+          this.mesh.setVertices(combined.getVertices().toArray());
+       }
+ 
+-      if (RuntimeInfo.useSharedIndices) {
+-         int numIndices = this.mesh.getNumVertices() * 6 / 4;
+-         SharedQuadIndexData.allowForNumIndices(numIndices, true);
+-      }
++      int numIndices = this.mesh.getNumVertices() * 6 / 4;
++      SharedQuadIndexData.allowForNumIndices(numIndices, true);
+    }
+ 
+    static record MeshDataMetadata(int vertexPosition, int numVertices) {

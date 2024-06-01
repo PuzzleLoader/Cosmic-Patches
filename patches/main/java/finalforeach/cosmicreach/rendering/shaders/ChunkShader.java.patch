@@ -1,0 +1,47 @@
+diff --git a/src/main/java/finalforeach/cosmicreach/rendering/shaders/ChunkShader.java b/src/main/java/finalforeach/cosmicreach/rendering/shaders/ChunkShader.java
+index 9c23c5b..fe4dc41 100644
+--- a/src/main/java/finalforeach/cosmicreach/rendering/shaders/ChunkShader.java
++++ b/src/main/java/finalforeach/cosmicreach/rendering/shaders/ChunkShader.java
+@@ -7,7 +7,6 @@ import com.badlogic.gdx.graphics.TextureData;
+ import com.badlogic.gdx.graphics.VertexAttribute;
+ import com.badlogic.gdx.utils.FloatArray;
+ import finalforeach.cosmicreach.GameAssetLoader;
+-import finalforeach.cosmicreach.RuntimeInfo;
+ import finalforeach.cosmicreach.rendering.TextureBuffer;
+ import finalforeach.cosmicreach.rendering.blockmodels.BlockModelJson;
+ import finalforeach.cosmicreach.rendering.blockmodels.BlockModelJsonTexture;
+@@ -20,9 +19,7 @@ public class ChunkShader extends GameShader {
+    public static ChunkShader DEFAULT_BLOCK_SHADER;
+    public static ChunkShader WATER_BLOCK_SHADER;
+    private static VertexAttribute posAttrib = VertexAttribute.Position();
+-   private static VertexAttribute uvAttrib = new VertexAttribute(16, 2, 5126, false, "a_uv");
+-   private static VertexAttribute uvIdxAttrib = new VertexAttribute(32, 1, 5126, false, "a_uvIdx");
+-   private static VertexAttribute lightingAttrib = new VertexAttribute(4, 4, "a_lighting");
++   private static VertexAttribute uvAoPackedColorAttrib = new VertexAttribute(32, 1, 5126, false, "a_uvAoPackedColorAttrib");
+    public static int allBlocksTexSize = 1024;
+    private static Pixmap allBlocksPix = new Pixmap(allBlocksTexSize, allBlocksTexSize, Pixmap.Format.RGBA8888);
+    private static int terrainPixCurX = 0;
+@@ -34,7 +31,13 @@ public class ChunkShader extends GameShader {
+ 
+    public ChunkShader(String vertFile, String fragFile) {
+       super(vertFile, fragFile);
+-      this.allVertexAttributes = new VertexAttribute[]{posAttrib, lightingAttrib, RuntimeInfo.isMac ? uvAttrib : uvIdxAttrib};
++      this.allVertexAttributes = new VertexAttribute[]{posAttrib, uvAoPackedColorAttrib};
++   }
++
++   @Override
++   public String preProcessShaderFile(String shaderText, GameShader.ShaderType shaderType) {
++      int modeluboVertsSize = Math.max(1, faceTexBufFloats.size / 2);
++      return shaderText.replaceAll("MODEL_UBO_VERTS", modeluboVertsSize + "");
+    }
+ 
+    public static void initChunkShaders() {
+@@ -106,6 +109,8 @@ public class ChunkShader extends GameShader {
+       texNum = this.bindOptionalTexture("noiseTex", noiseTex, texNum);
+       this.bindOptionalUniform3f("skyAmbientColor", Sky.ambientColor);
+       this.bindOptionalUniform3f("skyColor", Sky.skyColor);
++      this.bindOptionalInt("chunkWidth", 16);
++      this.bindOptionalInt("chunkHeight", 16);
+    }
+ 
+    @Override

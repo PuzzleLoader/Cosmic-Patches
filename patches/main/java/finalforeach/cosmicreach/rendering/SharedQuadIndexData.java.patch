@@ -1,0 +1,52 @@
+diff --git a/src/main/java/finalforeach/cosmicreach/rendering/SharedQuadIndexData.java b/src/main/java/finalforeach/cosmicreach/rendering/SharedQuadIndexData.java
+index 5bf025a..4ae4a08 100644
+--- a/src/main/java/finalforeach/cosmicreach/rendering/SharedQuadIndexData.java
++++ b/src/main/java/finalforeach/cosmicreach/rendering/SharedQuadIndexData.java
+@@ -1,17 +1,10 @@
+ package finalforeach.cosmicreach.rendering;
+ 
+-import finalforeach.cosmicreach.RuntimeInfo;
+ import finalforeach.cosmicreach.rendering.meshes.IntIndexData;
+ 
+ public class SharedQuadIndexData {
+    public static IntIndexData indexData;
+ 
+-   public SharedQuadIndexData() {
+-      if (!RuntimeInfo.useSharedIndices) {
+-         throw new RuntimeException("RuntimeInfo.useSharedIndices is disabled, do not instantiate!");
+-      }
+-   }
+-
+    public static void bind() {
+       indexData.bind();
+    }
+@@ -21,14 +14,27 @@ public class SharedQuadIndexData {
+    }
+ 
+    public static void allowForNumIndices(int numIndices, boolean bind) {
+-      numIndices = (int)Math.ceil((double)((float)numIndices / 6.0F)) * 6;
+       if (indexData != null && indexData.getNumMaxIndices() < numIndices) {
+          indexData.dispose();
+          indexData = null;
+       }
+ 
+       if (indexData == null) {
+-         indexData = IntIndexData.createQuadIndexData(numIndices);
++         int[] indices = new int[numIndices];
++         int f = 0;
++
++         for(int i = 0; i < numIndices; i += 6) {
++            indices[i] = f + 0;
++            indices[i + 1] = f + 1;
++            indices[i + 2] = f + 2;
++            indices[i + 3] = f + 2;
++            indices[i + 4] = f + 3;
++            indices[i + 5] = f + 0;
++            f += 4;
++         }
++
++         indexData = new IntIndexData(true, numIndices);
++         indexData.setIndices(indices);
+          if (bind) {
+             indexData.bind();
+          }

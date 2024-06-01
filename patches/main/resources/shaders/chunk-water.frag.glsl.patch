@@ -1,0 +1,22 @@
+diff --git a/src/main/resources/shaders/chunk-water.frag.glsl b/src/main/resources/shaders/chunk-water.frag.glsl
+index 58633cc..d50c8cf 100644
+--- a/src/main/resources/shaders/chunk-water.frag.glsl
++++ b/src/main/resources/shaders/chunk-water.frag.glsl
+@@ -8,6 +8,7 @@ uniform vec3 skyAmbientColor;
+ uniform vec3 skyColor;
+ 
+ in vec2 v_texCoord0;
++in float shading;
+ in vec4 blocklight;
+ in float waveStrength;
+ in vec3 worldPos;
+@@ -52,7 +53,8 @@ void main()
+     waterColor = mix(waterColor, skyColor, blocklight.a * (1-fresnel));
+ 
+ 
+-    vec3 lightTint = max(blocklight.rgb, blocklight.a * skyAmbientColor);
++    vec3 lightTint = shading * max(blocklight.rgb, blocklight.a * skyAmbientColor);
++    //vec3 lightTint = shading * blocklight.rgb;
+     float alpha = mix(texColor.a*2.0, texColor.a*0.5, fresnel);
+     
+     if(alpha == 0)

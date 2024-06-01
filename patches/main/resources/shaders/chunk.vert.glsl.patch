@@ -1,0 +1,40 @@
+diff --git a/src/main/resources/shaders/chunk.vert.glsl b/src/main/resources/shaders/chunk.vert.glsl
+index e0e0b03..ca4a279 100644
+--- a/src/main/resources/shaders/chunk.vert.glsl
++++ b/src/main/resources/shaders/chunk.vert.glsl
+@@ -1,13 +1,16 @@
+ #version 150
+ 
+ in vec3 a_position;
+-//in int a_uvAoPackedColorAttrib;
++in int a_uvAoPackedColorAttrib;
+ 
+-in vec4 a_lighting;
+ uniform mat4 u_projViewTrans;
++uniform vec3 chunkPos;
++uniform int chunkWidth;
++uniform int chunkHeight;
+ 
+ out vec2 v_texCoord0;
+ out vec3 worldPos;
++out float shading;
+ out vec4 blocklight;
+ 
+ #import "common/bitUnpacker.glsl"
+@@ -16,11 +19,12 @@ void main()
+ {
+ 	worldPos = a_position;
+ 	
+-	//int packedColorBits = getPackedColorBits(a_uvAoPackedColorAttrib);
+-	blocklight = a_lighting;//getBlockLight(packedColorBits);
++	int packedColorBits = getPackedColorBits(a_uvAoPackedColorAttrib);
++	blocklight = getBlockLight(packedColorBits);
+ 	
+-	//int uvAoBits = getUvAoBits(a_uvAoPackedColorAttrib);
+-	v_texCoord0 = GET_TEX_COORDS;
++	int uvAoBits = getUvAoBits(a_uvAoPackedColorAttrib);
++	shading = getAO(uvAoBits);
++	v_texCoord0 = getTexCoords(uvAoBits);
+ 
+ 	gl_Position = (u_projViewTrans * vec4(worldPos, 1.0));
+ }

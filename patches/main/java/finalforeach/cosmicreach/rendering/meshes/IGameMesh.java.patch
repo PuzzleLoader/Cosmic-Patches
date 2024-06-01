@@ -1,0 +1,27 @@
+diff --git a/src/main/java/finalforeach/cosmicreach/rendering/meshes/IGameMesh.java b/src/main/java/finalforeach/cosmicreach/rendering/meshes/IGameMesh.java
+index bb50440..21f30f2 100644
+--- a/src/main/java/finalforeach/cosmicreach/rendering/meshes/IGameMesh.java
++++ b/src/main/java/finalforeach/cosmicreach/rendering/meshes/IGameMesh.java
+@@ -1,7 +1,6 @@
+ package finalforeach.cosmicreach.rendering.meshes;
+ 
+ import com.badlogic.gdx.graphics.glutils.ShaderProgram;
+-import com.badlogic.gdx.graphics.glutils.VertexData;
+ import com.badlogic.gdx.utils.Disposable;
+ 
+ public interface IGameMesh extends Disposable {
+@@ -12,14 +11,4 @@ public interface IGameMesh extends Disposable {
+    void unbind(ShaderProgram var1);
+ 
+    void render(ShaderProgram var1, int var2);
+-
+-   VertexData getVertices();
+-
+-   void setAutoBind(boolean var1);
+-
+-   int getNumMaxVertices();
+-
+-   int getVertexSizeInFloats();
+-
+-   void setVertices(float[] var1);
+ }

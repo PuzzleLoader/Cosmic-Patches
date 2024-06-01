@@ -1,0 +1,56 @@
+diff --git a/src/main/java/finalforeach/cosmicreach/rendering/ExperimentalNaiveZoneRenderer.java b/src/main/java/finalforeach/cosmicreach/rendering/ExperimentalNaiveZoneRenderer.java
+index 5c9740a..041a514 100644
+--- a/src/main/java/finalforeach/cosmicreach/rendering/ExperimentalNaiveZoneRenderer.java
++++ b/src/main/java/finalforeach/cosmicreach/rendering/ExperimentalNaiveZoneRenderer.java
+@@ -3,8 +3,7 @@ package finalforeach.cosmicreach.rendering;
+ import com.badlogic.gdx.Gdx;
+ import com.badlogic.gdx.graphics.Camera;
+ import finalforeach.cosmicreach.GameSingletons;
+-import finalforeach.cosmicreach.RuntimeInfo;
+-import finalforeach.cosmicreach.rendering.meshes.IGameMesh;
++import finalforeach.cosmicreach.rendering.meshes.SharedIndexMesh;
+ import finalforeach.cosmicreach.rendering.shaders.GameShader;
+ import finalforeach.cosmicreach.world.Chunk;
+ import finalforeach.cosmicreach.world.IChunkMeshGroup;
+@@ -53,7 +52,7 @@ public class ExperimentalNaiveZoneRenderer implements IZoneRenderer {
+       Gdx.gl.glBlendFunc(770, 771);
+       this.requestMeshes(zone);
+       lastBoundShader = null;
+-      if (SharedQuadIndexData.indexData != null && RuntimeInfo.useSharedIndices) {
++      if (SharedQuadIndexData.indexData != null) {
+          SharedQuadIndexData.indexData.bind();
+       }
+ 
+@@ -73,18 +72,14 @@ public class ExperimentalNaiveZoneRenderer implements IZoneRenderer {
+                               m.mesh.dispose();
+                            }
+ 
+-                           if (RuntimeInfo.useSharedIndices) {
+-                              m.mesh = m.toSharedIndexMesh(true);
+-                              int numIndices = m.mesh.getNumVertices() * 6 / 4;
+-                              SharedQuadIndexData.allowForNumIndices(numIndices, true);
+-                           } else {
+-                              m.mesh = m.toIntIndexedMesh(true);
+-                           }
++                           m.mesh = m.toSharedIndexMesh(true);
++                           int numIndices = m.mesh.getNumVertices() * 6 / 4;
++                           SharedQuadIndexData.allowForNumIndices(numIndices, true);
+                         }
+ 
+-                        IGameMesh mesh = m.mesh;
++                        SharedIndexMesh mesh = m.mesh;
+                         GameShader shader = m.shader;
+-                        mesh.setAutoBind(false);
++                        mesh.autoBind = false;
+                         if (lastBoundShader != shader) {
+                            lastBoundShader = shader;
+                            lastBoundShader.bind(worldCamera);
+@@ -100,7 +95,7 @@ public class ExperimentalNaiveZoneRenderer implements IZoneRenderer {
+          }
+       }
+ 
+-      if (SharedQuadIndexData.indexData != null && RuntimeInfo.useSharedIndices) {
++      if (SharedQuadIndexData.indexData != null) {
+          SharedQuadIndexData.indexData.unbind();
+       }
+ 

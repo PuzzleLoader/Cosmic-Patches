@@ -1,0 +1,13 @@
+diff --git a/src/main/java/finalforeach/cosmicreach/gamestates/KeybindsMenu.java b/src/main/java/finalforeach/cosmicreach/gamestates/KeybindsMenu.java
+index f4fa4dd..cf287ea 100644
+--- a/src/main/java/finalforeach/cosmicreach/gamestates/KeybindsMenu.java
++++ b/src/main/java/finalforeach/cosmicreach/gamestates/KeybindsMenu.java
+@@ -94,7 +94,7 @@ public class KeybindsMenu extends GameState {
+       final Keybind keybind;
+       String label;
+ 
+-      public KeybindButton(String label, Keybind keybind, float x, float y, float w, float h) {
++      public KeybindButton(String param2, Keybind param3, float param4, float param5, float param6, float param7) {
+          super(x, y, w, h);
+          this.keybind = keybind;
+          this.label = label;

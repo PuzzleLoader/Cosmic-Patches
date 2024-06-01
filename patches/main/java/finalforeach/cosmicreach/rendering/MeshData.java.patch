@@ -1,0 +1,21 @@
+diff --git a/src/main/java/finalforeach/cosmicreach/rendering/MeshData.java b/src/main/java/finalforeach/cosmicreach/rendering/MeshData.java
+index fbdd2ff..3228b14 100644
+--- a/src/main/java/finalforeach/cosmicreach/rendering/MeshData.java
++++ b/src/main/java/finalforeach/cosmicreach/rendering/MeshData.java
+@@ -3,7 +3,6 @@ package finalforeach.cosmicreach.rendering;
+ import com.badlogic.gdx.graphics.VertexAttributes;
+ import com.badlogic.gdx.utils.FloatArray;
+ import com.badlogic.gdx.utils.IntArray;
+-import finalforeach.cosmicreach.rendering.meshes.IGameMesh;
+ import finalforeach.cosmicreach.rendering.meshes.IntIndexedMesh;
+ import finalforeach.cosmicreach.rendering.meshes.SharedIndexMesh;
+ import finalforeach.cosmicreach.rendering.meshes.ShortIndexedMesh;
+@@ -14,7 +13,7 @@ public class MeshData implements IMeshData {
+    IntArray indices;
+    GameShader shader;
+    RenderOrder renderOrder;
+-   IGameMesh mesh;
++   SharedIndexMesh mesh;
+    boolean meshDirty = true;
+ 
+    public MeshData(FloatArray vertices, IntArray indices, GameShader shader, RenderOrder renderOrder) {

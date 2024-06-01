@@ -1,0 +1,149 @@
+diff --git a/src/main/java/finalforeach/cosmicreach/rendering/blockmodels/BlockModelJson.java b/src/main/java/finalforeach/cosmicreach/rendering/blockmodels/BlockModelJson.java
+index b33233a..fb754e1 100644
+--- a/src/main/java/finalforeach/cosmicreach/rendering/blockmodels/BlockModelJson.java
++++ b/src/main/java/finalforeach/cosmicreach/rendering/blockmodels/BlockModelJson.java
+@@ -1,6 +1,5 @@
+ package finalforeach.cosmicreach.rendering.blockmodels;
+ 
+-import com.badlogic.gdx.graphics.Color;
+ import com.badlogic.gdx.math.collision.BoundingBox;
+ import com.badlogic.gdx.utils.Array;
+ import com.badlogic.gdx.utils.FloatArray;
+@@ -8,7 +7,6 @@ import com.badlogic.gdx.utils.IntArray;
+ import com.badlogic.gdx.utils.Json;
+ import com.badlogic.gdx.utils.OrderedMap;
+ import finalforeach.cosmicreach.GameAssetLoader;
+-import finalforeach.cosmicreach.RuntimeInfo;
+ import finalforeach.cosmicreach.rendering.IMeshData;
+ import finalforeach.cosmicreach.rendering.shaders.ChunkShader;
+ import java.util.HashMap;
+@@ -20,7 +18,8 @@ public class BlockModelJson extends BlockModel {
+    private OrderedMap<String, BlockModelJsonTexture> textures;
+    private BlockModelJsonCuboid[] cuboids;
+    private transient BlockModelJsonCuboidFace[] allFaces;
+-   public static final boolean useIndices = !RuntimeInfo.useSharedIndices;
++   public static final boolean useIndices = false;
++   private static final int packed14BitLimit = (int)Math.pow(2.0, 14.0);
+    Boolean canGreedyCombine;
+    public int uvUBOIndex;
+ 
+@@ -242,6 +241,51 @@ public class BlockModelJson extends BlockModel {
+       this.boundingBox.update();
+    }
+ 
++   public void addVerticesBlockSelection(IMeshData meshData, BoundingBox activeBoundingBox) {
++      IntArray indices = meshData.getIndices();
++      meshData.ensureVerticesCapacity(6 * this.allFaces.length * 4);
++
++      for(int fi = 0; fi < this.allFaces.length; ++fi) {
++         BlockModelJsonCuboidFace f = this.allFaces[fi];
++         float x1 = activeBoundingBox.min.x + f.x1 * activeBoundingBox.getWidth();
++         float y1 = activeBoundingBox.min.y + f.y1 * activeBoundingBox.getHeight();
++         float z1 = activeBoundingBox.min.z + f.z1 * activeBoundingBox.getDepth();
++         float x2 = activeBoundingBox.min.x + f.x2 * activeBoundingBox.getWidth();
++         float y2 = activeBoundingBox.min.y + f.y2 * activeBoundingBox.getHeight();
++         float z2 = activeBoundingBox.min.z + f.z2 * activeBoundingBox.getDepth();
++         float midX1 = activeBoundingBox.min.x + f.midX1 * activeBoundingBox.getWidth();
++         float midY1 = activeBoundingBox.min.y + f.midY1 * activeBoundingBox.getHeight();
++         float midZ1 = activeBoundingBox.min.z + f.midZ1 * activeBoundingBox.getDepth();
++         float midX2 = activeBoundingBox.min.x + f.midX2 * activeBoundingBox.getWidth();
++         float midY2 = activeBoundingBox.min.y + f.midY2 * activeBoundingBox.getHeight();
++         float midZ2 = activeBoundingBox.min.z + f.midZ2 * activeBoundingBox.getDepth();
++         int i1 = addVertBlockSelection(meshData, x1, y1, z1, f.uA, f.vA);
++         int i2 = addVertBlockSelection(meshData, midX1, midY1, midZ1, f.uB, f.vB);
++         int i3 = addVertBlockSelection(meshData, x2, y2, z2, f.uC, f.vC);
++         int i4 = addVertBlockSelection(meshData, midX2, midY2, midZ2, f.uD, f.vD);
++         indices.add(i1);
++         indices.add(i2);
++         indices.add(i3);
++         indices.add(i3);
++         indices.add(i4);
++         indices.add(i1);
++      }
++   }
++
++   protected static int addVertBlockSelection(IMeshData meshData, float x, float y, float z, float u, float v) {
++      FloatArray verts = meshData.getVertices();
++      float[] items = verts.items;
++      int size = verts.size;
++      int indexOfCurVertex = size / 5;
++      items[size] = x;
++      items[size + 1] = y;
++      items[size + 2] = z;
++      items[size + 3] = u;
++      items[size + 4] = v;
++      verts.size += 5;
++      return indexOfCurVertex;
++   }
++
+    @Override
+    public void addVertices(IMeshData meshData, int bx, int by, int bz, int opaqueBitmask, short[] blockLightLevels, int[] skyLightLevels) {
+       IntArray indices = meshData.getIndices();
+@@ -290,52 +334,31 @@ public class BlockModelJson extends BlockModel {
+             int viB = f.vertexIndexB;
+             int viC = f.vertexIndexC;
+             int viD = f.vertexIndexD;
+-            int i1 = this.addVert(meshData, x1, y1, z1, f.uA, f.vA, aoIdA, blockLightLevels[viA], skyLightLevels[viA], f.modelUvIdxA);
+-            int i2 = this.addVert(meshData, midX1, midY1, midZ1, f.uB, f.vB, aoIdB, blockLightLevels[viB], skyLightLevels[viB], f.modelUvIdxB);
+-            int i3 = this.addVert(meshData, x2, y2, z2, f.uC, f.vC, aoIdC, blockLightLevels[viC], skyLightLevels[viC], f.modelUvIdxC);
+-            int i4 = this.addVert(meshData, midX2, midY2, midZ2, f.uD, f.vD, aoIdD, blockLightLevels[viD], skyLightLevels[viD], f.modelUvIdxD);
+-            if (useIndices) {
+-               indices.add(i1);
+-               indices.add(i2);
+-               indices.add(i3);
+-               indices.add(i3);
+-               indices.add(i4);
+-               indices.add(i1);
+-            }
++            int i1 = this.addVert(meshData, x1, y1, z1, f.uA, f.vA, aoIdA, blockLightLevels[viA], skyLightLevels[viA], f.modelUboIdxA);
++            int i2 = this.addVert(meshData, midX1, midY1, midZ1, f.uB, f.vB, aoIdB, blockLightLevels[viB], skyLightLevels[viB], f.modelUboIdxB);
++            int i3 = this.addVert(meshData, x2, y2, z2, f.uC, f.vC, aoIdC, blockLightLevels[viC], skyLightLevels[viC], f.modelUboIdxC);
++            int var34 = this.addVert(meshData, midX2, midY2, midZ2, f.uD, f.vD, aoIdD, blockLightLevels[viD], skyLightLevels[viD], f.modelUboIdxD);
+          }
+       }
+    }
+ 
+-   public int addVert(IMeshData meshData, float x, float y, float z, float u, float v, int aoId, short blockLight, int skyLight, int uvIdx) {
++   public int addVert(IMeshData meshData, float x, float y, float z, float u, float v, int aoId, short blockLight, int skyLight, int uboIdx) {
+       FloatArray verts = meshData.getVertices();
+       float[] items = verts.items;
+       int size = verts.size;
+-      int numComponents = 5;
+-      if (RuntimeInfo.isMac) {
+-         ++numComponents;
+-      }
+-
+-      int indexOfCurVertex = size / numComponents;
+-      int r = 17 * ((blockLight & 3840) >> 8);
+-      int g = 17 * ((blockLight & 240) >> 4);
+-      int b = 17 * (blockLight & 15);
+-      float subAO = (float)aoId / 4.0F + 0.25F;
+-      r = (int)((float)r * subAO);
+-      g = (int)((float)g * subAO);
+-      b = (int)((float)b * subAO);
+-      skyLight = (int)((float)skyLight * subAO * 17.0F);
++      int numComponents = 4;
++      int indexOfCurVertex = size / 4;
++      int r = (blockLight & 3840) >> 8;
++      int g = (blockLight & 240) >> 4;
++      int b = blockLight & 15;
++      int packedColorBits = skyLight << 12 | b << 8 | g << 4 | r;
++      int uvAoBits = (uboIdx << 2) + aoId;
++      int uvAoPackedColorBits = uvAoBits << 16 | packedColorBits;
+       items[size] = x;
+       items[size + 1] = y;
+       items[size + 2] = z;
+-      items[size + 3] = Color.toFloatBits(r, g, b, skyLight);
+-      if (RuntimeInfo.isMac) {
+-         items[size + 4] = u;
+-         items[size + 5] = v;
+-      } else {
+-         items[size + 4] = Float.intBitsToFloat(uvIdx);
+-      }
+-
+-      verts.size += numComponents;
++      items[size + 3] = Float.intBitsToFloat(uvAoPackedColorBits);
++      verts.size += 4;
+       return indexOfCurVertex;
+    }
+ 

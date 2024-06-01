@@ -1,0 +1,19 @@
+diff --git a/src/main/java/finalforeach/cosmicreach/rendering/blockmodels/BlockModelJsonCuboid.java b/src/main/java/finalforeach/cosmicreach/rendering/blockmodels/BlockModelJsonCuboid.java
+index 9409e9a..6f5af1e 100644
+--- a/src/main/java/finalforeach/cosmicreach/rendering/blockmodels/BlockModelJsonCuboid.java
++++ b/src/main/java/finalforeach/cosmicreach/rendering/blockmodels/BlockModelJsonCuboid.java
+@@ -373,10 +373,10 @@ public class BlockModelJsonCuboid {
+                throw new UnsupportedOperationException("Invalid value for uvRotation, must be 0, 90, 180, or 270");
+          }
+ 
+-         f.modelUvIdxA = this.getFaceUBOFloatsIdx(f.uA, f.vA);
+-         f.modelUvIdxB = this.getFaceUBOFloatsIdx(f.uB, f.vB);
+-         f.modelUvIdxC = this.getFaceUBOFloatsIdx(f.uC, f.vC);
+-         f.modelUvIdxD = this.getFaceUBOFloatsIdx(f.uD, f.vD);
++         f.modelUboIdxA = this.getFaceUBOFloatsIdx(f.uA, f.vA);
++         f.modelUboIdxB = this.getFaceUBOFloatsIdx(f.uB, f.vB);
++         f.modelUboIdxC = this.getFaceUBOFloatsIdx(f.uC, f.vC);
++         f.modelUboIdxD = this.getFaceUBOFloatsIdx(f.uD, f.vD);
+          if (isValidFace) {
+             allFaces.add(f);
+          }

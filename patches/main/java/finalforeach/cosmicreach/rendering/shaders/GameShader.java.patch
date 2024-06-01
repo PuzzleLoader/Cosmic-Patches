@@ -1,0 +1,122 @@
+diff --git a/src/main/java/finalforeach/cosmicreach/rendering/shaders/GameShader.java b/src/main/java/finalforeach/cosmicreach/rendering/shaders/GameShader.java
+index eb93ed6..f651a67 100644
+--- a/src/main/java/finalforeach/cosmicreach/rendering/shaders/GameShader.java
++++ b/src/main/java/finalforeach/cosmicreach/rendering/shaders/GameShader.java
+@@ -10,8 +10,6 @@ import com.badlogic.gdx.utils.Array;
+ import finalforeach.cosmicreach.GameAssetLoader;
+ import finalforeach.cosmicreach.RuntimeInfo;
+ import finalforeach.cosmicreach.rendering.TextureBuffer;
+-import java.util.HashSet;
+-import java.util.Set;
+ import org.lwjgl.opengl.GL32;
+ 
+ public class GameShader {
+@@ -21,7 +19,7 @@ public class GameShader {
+    private String fragShaderFileName;
+    public ShaderProgram shader;
+    public VertexAttribute[] allVertexAttributes;
+-   public static String macOSPrependVert = "#define attribute in\n#define varying out\n#define MACOS 1\n";
++   public static String macOSPrependVert = "#define attribute in\n#define varying out\n#extension GL_EXT_gpu_shader4: enable\n#define MACOS 1\n";
+    public static String macOSPrependFrag = "#define varying in\nout vec4 fragColor;\n#define textureCube texture\n#define texture2D texture\n#define gl_FragColor fragColor\n#define MACOS 1\n";
+    public static String macOSPrependVertVer = "#version 150\n" + macOSPrependVert;
+    public static String macOSPrependFragVer = "#version 150\n" + macOSPrependFrag;
+@@ -53,14 +51,12 @@ public class GameShader {
+       for(String shaderLine : rawShaderLines) {
+          if (shaderLine.startsWith("#version")) {
+             version = shaderLine + "\n";
+-            if (RuntimeInfo.isMac) {
+-               switch(shaderType) {
+-                  case FRAG:
+-                     version = version + macOSPrependFrag;
+-                     break;
+-                  case VERT:
+-                     version = version + macOSPrependVert;
+-               }
++            switch(shaderType.ordinal()) {
++               case 0:
++                  version = version + macOSPrependFrag;
++                  break;
++               case 1:
++                  version = version + macOSPrependVert;
+             }
+          } else if (shaderLine.startsWith("#import \"") && shaderLine.endsWith("\"")) {
+             String importedShaderName = shaderLine.replaceFirst("#import \"", "").replace("\\", "/");
+@@ -79,68 +75,18 @@ public class GameShader {
+       return shaderText;
+    }
+ 
+-   public void validateShader(String vertFileName, String vertShaderText, String fragFileName, String fragShaderText) {
+-      String[] vertLines = vertShaderText.split(";");
+-      String[] fragLines = fragShaderText.split(";");
+-      Set<String> vertOuts = new HashSet<>();
+-
+-      for(String vLine : vertLines) {
+-         String v = vLine.trim();
+-         if (v.startsWith("out ")) {
+-            String out = v.replace("out ", "");
+-            if (vertOuts.contains(out)) {
+-               throw new RuntimeException("Vert shader " + vertFileName + ": Cannot declare out param '" + out + "' twice.");
+-            }
+-
+-            vertOuts.add(out);
+-         }
+-      }
+-
+-      Set<String> missingFragIns = new HashSet<>(vertOuts);
+-      Set<String> fragIns = new HashSet<>();
+-
+-      for(String fLine : fragLines) {
+-         String f = fLine.trim();
+-         if (f.startsWith("in ")) {
+-            String in = f.replace("in ", "");
+-            if (!vertOuts.contains(in)) {
+-               throw new RuntimeException("Vert shader " + vertFileName + ": Missing out param '" + in + "' to pass to frag shader.");
+-            }
+-
+-            if (fragIns.contains(in)) {
+-               throw new RuntimeException("Frag shader " + fragFileName + ": Cannot declare in param '" + in + "' twice.");
+-            }
+-
+-            fragIns.add(in);
+-            missingFragIns.remove(in);
+-         }
+-      }
+-
+-      if (missingFragIns.size() > 0) {
+-         String missingInStr = "";
+-
+-         for(String i : missingFragIns) {
+-            missingInStr = missingInStr + i + ", ";
+-         }
+-
+-         throw new RuntimeException("Frag shader " + fragFileName + ": Missing in params from vert shader: " + missingInStr);
+-      }
+-   }
+-
+    public void reload() {
+       if (this.shader != null) {
+          this.shader.dispose();
+       }
+ 
+-      if (RuntimeInfo.isMac) {
++      if (RuntimeInfo.osName.contains("mac")) {
+          ShaderProgram.prependVertexCode = "";
+          ShaderProgram.prependFragmentCode = "";
+       }
+ 
+       String vert = this.preProcessShaderFile(this.loadShaderFile(this.vertexShaderFileName, GameShader.ShaderType.VERT), GameShader.ShaderType.VERT);
+       String frag = this.preProcessShaderFile(this.loadShaderFile(this.fragShaderFileName, GameShader.ShaderType.FRAG), GameShader.ShaderType.FRAG);
+-      this.validateShader(this.vertexShaderFileName, vert, this.fragShaderFileName, frag);
+-      ShaderProgram.pedantic = true;
+       this.shader = new ShaderProgram(vert, frag);
+       System.out.println("Compiling shader(" + this.vertexShaderFileName + ", " + this.fragShaderFileName + ")...");
+       if (!this.shader.isCompiled()) {
+@@ -157,7 +103,7 @@ public class GameShader {
+          }
+ 
+          System.out.println(this.shader.getLog());
+-         if (RuntimeInfo.isMac) {
++         if (RuntimeInfo.osName.contains("mac")) {
+             ShaderProgram.prependVertexCode = macOSPrependVertVer;
+             ShaderProgram.prependFragmentCode = macOSPrependFragVer;
+          }

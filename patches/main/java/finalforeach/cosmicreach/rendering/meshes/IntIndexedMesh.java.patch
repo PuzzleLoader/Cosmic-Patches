@@ -1,0 +1,27 @@
+diff --git a/src/main/java/finalforeach/cosmicreach/rendering/meshes/IntIndexedMesh.java b/src/main/java/finalforeach/cosmicreach/rendering/meshes/IntIndexedMesh.java
+index 6a37a07..590ea40 100644
+--- a/src/main/java/finalforeach/cosmicreach/rendering/meshes/IntIndexedMesh.java
++++ b/src/main/java/finalforeach/cosmicreach/rendering/meshes/IntIndexedMesh.java
+@@ -4,7 +4,6 @@ import com.badlogic.gdx.Gdx;
+ import com.badlogic.gdx.graphics.VertexAttribute;
+ import com.badlogic.gdx.graphics.VertexAttributes;
+ import com.badlogic.gdx.graphics.glutils.ShaderProgram;
+-import com.badlogic.gdx.graphics.glutils.VertexData;
+ import com.badlogic.gdx.utils.Disposable;
+ import com.badlogic.gdx.utils.GdxRuntimeException;
+ 
+@@ -97,14 +96,4 @@ public class IntIndexedMesh extends GameMesh implements Disposable {
+    public void setIndices(int[] indices) {
+       this.indexData.setIndices(indices);
+    }
+-
+-   @Override
+-   public VertexData getVertices() {
+-      return this.vertices;
+-   }
+-
+-   @Override
+-   public void setAutoBind(boolean autoBind) {
+-      this.autoBind = autoBind;
+-   }
+ }

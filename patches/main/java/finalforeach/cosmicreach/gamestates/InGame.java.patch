@@ -1,0 +1,23 @@
+diff --git a/src/main/java/finalforeach/cosmicreach/gamestates/InGame.java b/src/main/java/finalforeach/cosmicreach/gamestates/InGame.java
+index eb0e3f2..1240475 100644
+--- a/src/main/java/finalforeach/cosmicreach/gamestates/InGame.java
++++ b/src/main/java/finalforeach/cosmicreach/gamestates/InGame.java
+@@ -175,16 +175,10 @@ public class InGame extends GameState {
+          this.screenshotMsgCountdownTimer = maxScreenshotMsgCountdownTimer;
+       }
+ 
+-      if (this.screenshotMsgCountdownTimer > 0.0F) {
++      if (this.lastScreenshotFileName != null) {
+          batch.setColor(1.0F, 1.0F, 1.0F, MathUtils.clamp(this.screenshotMsgCountdownTimer / maxScreenshotMsgCountdownTimer, 0.0F, 1.0F));
+          batch.begin();
+-         String saveText;
+-         if (this.lastScreenshotFileName != null) {
+-            saveText = "Saved screenshot to " + this.lastScreenshotFileName.replace(SaveLocation.getSaveFolderLocation(), "");
+-         } else {
+-            saveText = "Error saving screenshot.";
+-         }
+-
++         String saveText = "Saved screenshot to " + this.lastScreenshotFileName.replace(SaveLocation.getSaveFolderLocation(), "");
+          FontRenderer.drawText(batch, this.uiViewport, saveText, 0.0F, 8.0F, HorizontalAnchor.LEFT_ALIGNED, VerticalAnchor.TOP_ALIGNED);
+          batch.end();
+          this.screenshotMsgCountdownTimer -= Gdx.graphics.getDeltaTime();

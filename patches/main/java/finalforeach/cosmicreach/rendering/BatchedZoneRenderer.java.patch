@@ -1,0 +1,30 @@
+diff --git a/src/main/java/finalforeach/cosmicreach/rendering/BatchedZoneRenderer.java b/src/main/java/finalforeach/cosmicreach/rendering/BatchedZoneRenderer.java
+index 1621873..d857257 100644
+--- a/src/main/java/finalforeach/cosmicreach/rendering/BatchedZoneRenderer.java
++++ b/src/main/java/finalforeach/cosmicreach/rendering/BatchedZoneRenderer.java
+@@ -12,7 +12,6 @@ import com.badlogic.gdx.utils.IntMap;
+ import com.badlogic.gdx.utils.ObjectIntMap;
+ import com.badlogic.gdx.utils.ObjectSet;
+ import finalforeach.cosmicreach.GameSingletons;
+-import finalforeach.cosmicreach.RuntimeInfo;
+ import finalforeach.cosmicreach.world.Chunk;
+ import finalforeach.cosmicreach.world.IChunkMeshGroup;
+ import finalforeach.cosmicreach.world.Region;
+@@ -306,7 +305,7 @@ public class BatchedZoneRenderer implements IZoneRenderer {
+       this.disposeUnusedBatches(false);
+       this.addMeshDatasToChunkBatches();
+       ChunkBatch.lastBoundShader = null;
+-      if (SharedQuadIndexData.indexData != null && RuntimeInfo.useSharedIndices) {
++      if (SharedQuadIndexData.indexData != null) {
+          SharedQuadIndexData.indexData.bind();
+       }
+ 
+@@ -323,7 +322,7 @@ public class BatchedZoneRenderer implements IZoneRenderer {
+          ChunkBatch.lastBoundShader.unbind();
+       }
+ 
+-      if (SharedQuadIndexData.indexData != null && RuntimeInfo.useSharedIndices) {
++      if (SharedQuadIndexData.indexData != null) {
+          SharedQuadIndexData.indexData.unbind();
+       }
+ 

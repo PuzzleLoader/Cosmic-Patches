@@ -1,0 +1,9 @@
+diff --git a/src/main/resources/build_assets/version.txt b/src/main/resources/build_assets/version.txt
+index 6cd3286..964f548 100644
+--- a/src/main/resources/build_assets/version.txt
++++ b/src/main/resources/build_assets/version.txt
+@@ -1 +1 @@
+-0.1.21
+\ No newline at end of file
++0.1.20
+\ No newline at end of file

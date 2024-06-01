@@ -1,0 +1,25 @@
+diff --git a/src/main/java/finalforeach/cosmicreach/rendering/meshes/GameMesh.java b/src/main/java/finalforeach/cosmicreach/rendering/meshes/GameMesh.java
+index 7188e59..94d654b 100644
+--- a/src/main/java/finalforeach/cosmicreach/rendering/meshes/GameMesh.java
++++ b/src/main/java/finalforeach/cosmicreach/rendering/meshes/GameMesh.java
+@@ -29,12 +29,10 @@ public abstract class GameMesh implements IGameMesh {
+       return this.vertices.getNumVertices();
+    }
+ 
+-   @Override
+    public int getNumMaxVertices() {
+       return this.vertices.getNumMaxVertices();
+    }
+ 
+-   @Override
+    public void setVertices(float[] vertices) {
+       this.vertices.setVertices(vertices, 0, vertices.length);
+    }
+@@ -52,7 +50,6 @@ public abstract class GameMesh implements IGameMesh {
+       return null;
+    }
+ 
+-   @Override
+    public int getVertexSizeInFloats() {
+       return this.vertices.getAttributes().vertexSize / 4;
+    }

@@ -1,0 +1,50 @@
+diff --git a/src/main/resources/shaders/chunk-water.vert.glsl b/src/main/resources/shaders/chunk-water.vert.glsl
+index 2df77a0..b65d673 100644
+--- a/src/main/resources/shaders/chunk-water.vert.glsl
++++ b/src/main/resources/shaders/chunk-water.vert.glsl
+@@ -1,27 +1,39 @@
+ #version 150
+ 
+ in vec3 a_position;
+-//in int a_uvAoPackedColorAttrib;
+-in vec4 a_lighting;
++in int a_uvAoPackedColorAttrib;
+ 
+ uniform mat4 u_projViewTrans;
++uniform vec3 chunkPos;
+ uniform float u_time;
+ uniform vec3 cameraPosition;
++uniform int chunkWidth;
++uniform int chunkHeight;
+ 
+ out vec2 v_texCoord0;
+-out vec4 blocklight;
++out float shading;
+ out float waveStrength;
+ out vec3 worldPos;
++out vec4 blocklight;
+ out vec3 toCameraVector;
+ 
++
++uniform sampler2D tex;
++uniform sampler2D noiseTex;
++
+ #import "common/bitUnpacker.glsl"
+ 
+ void main() 
+ {
+-    worldPos = a_position;
++    worldPos = a_position;// + chunkPos;
++
++
++	int uvAoBits = getUvAoBits(a_uvAoPackedColorAttrib);
++	int packedColorBits = getPackedColorBits(a_uvAoPackedColorAttrib);
+ 
+-	v_texCoord0 = GET_TEX_COORDS;
+-	blocklight = a_lighting;
++	v_texCoord0 = getTexCoords(uvAoBits);
++	shading = getAO(uvAoBits);
++	blocklight = getBlockLight(packedColorBits);
+ 
+     toCameraVector = cameraPosition - worldPos;
+     float waveSpeed = 0.25;

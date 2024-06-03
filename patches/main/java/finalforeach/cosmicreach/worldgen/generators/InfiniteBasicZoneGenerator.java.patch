@@ -1,0 +1,18 @@
+diff --git a/src/main/java/finalforeach/cosmicreach/worldgen/generators/InfiniteBasicZoneGenerator.java b/src/main/java/finalforeach/cosmicreach/worldgen/generators/InfiniteBasicZoneGenerator.java
+index 805bd70..d832d32 100644
+--- a/src/main/java/finalforeach/cosmicreach/worldgen/generators/InfiniteBasicZoneGenerator.java
++++ b/src/main/java/finalforeach/cosmicreach/worldgen/generators/InfiniteBasicZoneGenerator.java
+@@ -33,12 +33,7 @@ public class InfiniteBasicZoneGenerator extends ZoneGenerator {
+    BlockState sandBlock = Block.SAND.getDefaultBlockState();
+    BlockState oakLeavesBlock = Block.SNOW.getDefaultBlockState();
+    BlockState oakLogBlock = Block.TREELOG.getDefaultBlockState();
+-   IBlockDataFactory<BlockState> layeredChunkDataFactory = new IBlockDataFactory<BlockState>() {
+-      @Override
+-      public IBlockData<BlockState> createChunkData() {
+-         return new SingleBlockData<>(InfiniteBasicZoneGenerator.this.airblock);
+-      }
+-   };
++   IBlockDataFactory<BlockState> layeredChunkDataFactory = () -> new SingleBlockData<>(InfiniteBasicZoneGenerator.this.airblock);
+ 
+    @Override
+    public String getSaveKey() {

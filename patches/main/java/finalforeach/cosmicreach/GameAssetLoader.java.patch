@@ -1,0 +1,12 @@
+diff --git a/src/main/java/finalforeach/cosmicreach/GameAssetLoader.java b/src/main/java/finalforeach/cosmicreach/GameAssetLoader.java
+index c36064b..6b2f218 100644
+--- a/src/main/java/finalforeach/cosmicreach/GameAssetLoader.java
++++ b/src/main/java/finalforeach/cosmicreach/GameAssetLoader.java
+@@ -13,7 +13,6 @@ public class GameAssetLoader {
+    public static final HashMap<String, FileHandle> ALL_ASSETS = new HashMap<>();
+    public static final HashMap<String, SoundBuffer> ALL_SOUNDS = new HashMap<>();
+    public static final HashMap<String, Texture> ALL_TEXTURES = new HashMap<>();
+-   public static AssetManager assetManager = new AssetManager();
+ 
+    public static FileHandle loadAsset(String fileName) {
+       return loadAsset(fileName, false);

@@ -1,0 +1,13 @@
+diff --git a/src/main/java/finalforeach/cosmicreach/rendering/RenderOrder.java b/src/main/java/finalforeach/cosmicreach/rendering/RenderOrder.java
+index ed81604..ca0a379 100644
+--- a/src/main/java/finalforeach/cosmicreach/rendering/RenderOrder.java
++++ b/src/main/java/finalforeach/cosmicreach/rendering/RenderOrder.java
+@@ -7,7 +7,7 @@ public enum RenderOrder {
+    int order;
+    boolean writesToDepth;
+ 
+-   private RenderOrder(int order, boolean writesToDepth) {
++   RenderOrder(int order, boolean writesToDepth) {
+       this.order = order;
+       this.writesToDepth = writesToDepth;
+    }

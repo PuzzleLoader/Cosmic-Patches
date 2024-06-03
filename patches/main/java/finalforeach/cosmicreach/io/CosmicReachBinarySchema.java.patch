@@ -1,0 +1,36 @@
+diff --git a/src/main/java/finalforeach/cosmicreach/io/CosmicReachBinarySchema.java b/src/main/java/finalforeach/cosmicreach/io/CosmicReachBinarySchema.java
+index 0fd6da7..4891ba0 100644
+--- a/src/main/java/finalforeach/cosmicreach/io/CosmicReachBinarySchema.java
++++ b/src/main/java/finalforeach/cosmicreach/io/CosmicReachBinarySchema.java
+@@ -51,10 +51,10 @@ class CosmicReachBinarySchema {
+       return bytes;
+    }
+ 
+-   static record SchemaItem(String name, CosmicReachBinarySchema.SchemaType type) {
++   record SchemaItem(String name, CosmicReachBinarySchema.SchemaType type) {
+    }
+ 
+-   static enum SchemaType {
++   enum SchemaType {
+       SCHEMA_END(0),
+       BYTE(1),
+       SHORT(2),
+@@ -75,7 +75,7 @@ class CosmicReachBinarySchema {
+       STRING_ARRAY(18),
+       OBJ_ARRAY(19);
+ 
+-      byte id;
++      final byte id;
+ 
+       private SchemaType(int id) {
+          this.id = (byte)id;
+@@ -84,8 +84,7 @@ class CosmicReachBinarySchema {
+       static CosmicReachBinarySchema.SchemaType get(byte b) {
+          CosmicReachBinarySchema.SchemaType[] v = values();
+ 
+-         for(int i = 0; i < v.length; ++i) {
+-            CosmicReachBinarySchema.SchemaType s = v[i];
++         for (SchemaType s : v) {
+             if (s.id == b) {
+                return s;
+             }

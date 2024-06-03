@@ -1,0 +1,22 @@
+diff --git a/src/main/java/finalforeach/cosmicreach/rendering/items/ItemRenderer.java b/src/main/java/finalforeach/cosmicreach/rendering/items/ItemRenderer.java
+index 8094027..eefea2b 100644
+--- a/src/main/java/finalforeach/cosmicreach/rendering/items/ItemRenderer.java
++++ b/src/main/java/finalforeach/cosmicreach/rendering/items/ItemRenderer.java
+@@ -39,7 +39,7 @@ public class ItemRenderer {
+          System.out.println("Disposed " + disposedItems.size + " unreferenced item models.");
+       }
+    }
+-
++   @SuppressWarnings("unchecked")
+    public static <T extends Item> ItemModel getModel(T item, boolean createIfNull) {
+       WeakReference<Item> ref = referenceMap.get(item);
+       ItemModel model = null;
+@@ -49,7 +49,7 @@ public class ItemRenderer {
+ 
+       if (model == null && createIfNull) {
+          Class<? extends Item> clazz = item.getClass();
+-         Function<WeakReference<? extends Item>, ItemModel> creator = (Function)modelCreators.get(clazz);
++         Function<WeakReference<? extends Item>, ItemModel> creator = (Function<WeakReference<? extends Item>, ItemModel>) modelCreators.get(clazz);
+          ref = new WeakReference<>(item);
+          model = creator.apply(ref);
+          models.put(ref, model);

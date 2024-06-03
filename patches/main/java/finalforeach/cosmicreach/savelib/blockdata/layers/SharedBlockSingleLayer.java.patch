@@ -1,8 +1,16 @@
 diff --git a/src/main/java/finalforeach/cosmicreach/savelib/blockdata/layers/SharedBlockSingleLayer.java b/src/main/java/finalforeach/cosmicreach/savelib/blockdata/layers/SharedBlockSingleLayer.java
-index 2f7ded0..1fbcb81 100644
+index 2f7ded0..fef4b3d 100644
 --- a/src/main/java/finalforeach/cosmicreach/savelib/blockdata/layers/SharedBlockSingleLayer.java
 +++ b/src/main/java/finalforeach/cosmicreach/savelib/blockdata/layers/SharedBlockSingleLayer.java
-@@ -29,6 +29,6 @@ public class SharedBlockSingleLayer<T> extends BlockSingleLayer<T> {
+@@ -3,6 +3,7 @@ package finalforeach.cosmicreach.savelib.blockdata.layers;
+ import finalforeach.cosmicreach.savelib.blockdata.LayeredBlockData;
+ import java.util.HashMap;
+ 
++@SuppressWarnings("unchecked")
+ public class SharedBlockSingleLayer<T> extends BlockSingleLayer<T> {
+    private static HashMap<Object, SharedBlockSingleLayer<?>> sharedInstances = new HashMap<>();
+ 
+@@ -29,6 +30,6 @@ public class SharedBlockSingleLayer<T> extends BlockSingleLayer<T> {
           }
        }
  

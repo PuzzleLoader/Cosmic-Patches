@@ -1,0 +1,33 @@
+diff --git a/src/main/java/finalforeach/cosmicreach/blocks/BlockState.java b/src/main/java/finalforeach/cosmicreach/blocks/BlockState.java
+index 05a94e2..b38bd6b 100644
+--- a/src/main/java/finalforeach/cosmicreach/blocks/BlockState.java
++++ b/src/main/java/finalforeach/cosmicreach/blocks/BlockState.java
+@@ -13,6 +13,8 @@ import finalforeach.cosmicreach.items.ItemBlock;
+ import finalforeach.cosmicreach.rendering.IMeshData;
+ import finalforeach.cosmicreach.rendering.blockmodels.BlockModel;
+ import finalforeach.cosmicreach.savelib.blocks.IBlockState;
++
++import java.util.Arrays;
+ import java.util.HashSet;
+ import java.util.Map;
+ import java.util.Map.Entry;
+@@ -73,9 +75,7 @@ public class BlockState implements IBlockState {
+       short[] blockLightLevels = new short[8];
+       int[] skyLightLevels = new int[8];
+ 
+-      for(int s = 0; s < blockLightLevels.length; ++s) {
+-         blockLightLevels[s] = 4095;
+-      }
++       Arrays.fill(blockLightLevels, (short) 4095);
+ 
+       this.blockModel.addVertices(meshData, bx, by, bz, 0, blockLightLevels, skyLightLevels);
+    }
+@@ -279,7 +279,7 @@ public class BlockState implements IBlockState {
+    public static String getModifiedSaveKey(String oldSaveKey, String paramName, String paramVal) {
+       String newSaveKey = oldSaveKey;
+       String paramSet = paramName + "=" + paramVal;
+-      if (paramVal.length() == 0) {
++      if (paramVal.isEmpty()) {
+          paramSet = "";
+       }
+ 

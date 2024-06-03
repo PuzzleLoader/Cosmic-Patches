@@ -1,7 +1,16 @@
 diff --git a/src/main/java/finalforeach/cosmicreach/savelib/blockdata/BlockDataCompactor.java b/src/main/java/finalforeach/cosmicreach/savelib/blockdata/BlockDataCompactor.java
-index 0a21403..6dc6952 100644
+index 0a21403..844b74f 100644
 --- a/src/main/java/finalforeach/cosmicreach/savelib/blockdata/BlockDataCompactor.java
 +++ b/src/main/java/finalforeach/cosmicreach/savelib/blockdata/BlockDataCompactor.java
+@@ -6,7 +6,7 @@ import finalforeach.cosmicreach.savelib.blockdata.layers.SharedBlockSingleLayer;
+ 
+ public class BlockDataCompactor {
+    public static <T> IBlockData<T> compact(IBlockData<T> blockData) {
+-      if (blockData instanceof LayeredBlockData layered) {
++      if (blockData instanceof LayeredBlockData<T> layered)  {
+          IBlockLayer<T>[] allLayers = layered.getLayers();
+ 
+          for(int yLevel = 0; yLevel < allLayers.length; ++yLevel) {
 @@ -17,7 +17,7 @@ public class BlockDataCompactor {
                 label43:
                 for(int i = 0; i < 16; ++i) {

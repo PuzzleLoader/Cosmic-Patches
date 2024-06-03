@@ -1,0 +1,13 @@
+diff --git a/src/main/java/finalforeach/cosmicreach/gamestates/MainMenu.java b/src/main/java/finalforeach/cosmicreach/gamestates/MainMenu.java
+index 544e577..6277269 100644
+--- a/src/main/java/finalforeach/cosmicreach/gamestates/MainMenu.java
++++ b/src/main/java/finalforeach/cosmicreach/gamestates/MainMenu.java
+@@ -118,7 +118,7 @@ public class MainMenu extends GameState {
+       batch.setColor(Color.WHITE);
+       FontRenderer.drawText(batch, this.uiViewport, promoText, -8.0F, y, HorizontalAnchor.RIGHT_ALIGNED, VerticalAnchor.BOTTOM_ALIGNED);
+       y -= promoTextDim.y;
+-      promoText = Lang.get("Game_version") + RuntimeInfo.version;
++      promoText = Lang.get("Game_version") + RuntimeInfo.version + " | Cosmic Reach Coder Pack";
+       FontRenderer.getTextDimensions(this.uiViewport, promoText, promoTextDim);
+       batch.setColor(Color.GRAY);
+       FontRenderer.drawText(batch, this.uiViewport, promoText, -7.0F, y + 1.0F, HorizontalAnchor.RIGHT_ALIGNED, VerticalAnchor.BOTTOM_ALIGNED);

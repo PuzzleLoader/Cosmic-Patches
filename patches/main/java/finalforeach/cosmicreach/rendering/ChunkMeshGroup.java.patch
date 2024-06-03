@@ -1,9 +1,13 @@
 diff --git a/src/main/java/finalforeach/cosmicreach/rendering/ChunkMeshGroup.java b/src/main/java/finalforeach/cosmicreach/rendering/ChunkMeshGroup.java
-index 4157c68..74c7ec8 100644
+index 4157c68..a2c8456 100644
 --- a/src/main/java/finalforeach/cosmicreach/rendering/ChunkMeshGroup.java
 +++ b/src/main/java/finalforeach/cosmicreach/rendering/ChunkMeshGroup.java
-@@ -32,7 +32,7 @@ public class ChunkMeshGroup implements IChunkMeshGroup<Array<MeshData>>, Disposa
- 
+@@ -29,10 +29,10 @@ public class ChunkMeshGroup implements IChunkMeshGroup<Array<MeshData>>, Disposa
+    public Array<MeshData> buildMeshVertices(ISavedChunk<?> chunk) {
+       return chunk.getBlockData() == null ? null : getMeshData(chunk);
+    }
+-
++   @SuppressWarnings("unchecked")
     private static Array<MeshData> getMeshData(ISavedChunk<?> savedChunk) {
        Chunk chunk = (Chunk)savedChunk;
 -      IBlockData<BlockState> blockData = chunk.getBlockData();

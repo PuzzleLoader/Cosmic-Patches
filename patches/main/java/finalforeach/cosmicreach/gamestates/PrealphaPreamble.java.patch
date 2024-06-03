@@ -1,0 +1,22 @@
+diff --git a/src/main/java/finalforeach/cosmicreach/gamestates/PrealphaPreamble.java b/src/main/java/finalforeach/cosmicreach/gamestates/PrealphaPreamble.java
+index 989695f..f551c78 100644
+--- a/src/main/java/finalforeach/cosmicreach/gamestates/PrealphaPreamble.java
++++ b/src/main/java/finalforeach/cosmicreach/gamestates/PrealphaPreamble.java
+@@ -71,7 +71,7 @@ public class PrealphaPreamble extends GameState {
+ 
+                for(int w = 0; w < words.length; ++w) {
+                   String word = words[w];
+-                  float cw = curLine.length() == 0 ? 0.0F : lineDim.x;
++                  float cw = curLine.isEmpty() ? 0.0F : lineDim.x;
+                   FontRenderer.getTextDimensions(this.uiViewport, word, lineDim);
+                   lineDim.x += cw;
+                   if (lineDim.x > maxW) {
+@@ -94,7 +94,7 @@ public class PrealphaPreamble extends GameState {
+                   }
+                }
+ 
+-               if (curLine.length() > 0) {
++               if (!curLine.isEmpty()) {
+                   FontRenderer.drawText(batch, this.uiViewport, curLine, -8.0F, y, HorizontalAnchor.CENTERED, VerticalAnchor.CENTERED);
+                   y += 32.0F;
+                   lineDim.set(0.0F, 0.0F);

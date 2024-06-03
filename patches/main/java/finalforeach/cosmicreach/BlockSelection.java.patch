@@ -1,0 +1,69 @@
+diff --git a/src/main/java/finalforeach/cosmicreach/BlockSelection.java b/src/main/java/finalforeach/cosmicreach/BlockSelection.java
+index d3b4cbe..bad7293 100644
+--- a/src/main/java/finalforeach/cosmicreach/BlockSelection.java
++++ b/src/main/java/finalforeach/cosmicreach/BlockSelection.java
+@@ -52,12 +52,12 @@ public class BlockSelection {
+    private Vector3 mouseCoords2 = new Vector3();
+    private Array<BoundingBox> tmpBoundingBoxes = new Array<>(BoundingBox.class);
+    private static Array<BlockPosition> positionsToFree = new Array<>();
+-   static Pool<BlockPosition> positionPool = new Pool<BlockPosition>() {
+-      protected BlockPosition newObject() {
+-         PooledBlockPosition<BlockPosition> p = new PooledBlockPosition<>(BlockSelection.positionPool, null, 0, 0, 0);
+-         BlockSelection.positionsToFree.add(p);
+-         return p;
+-      }
++   static Pool<BlockPosition> positionPool = new Pool<>() {
++       protected BlockPosition newObject() {
++           PooledBlockPosition<BlockPosition> p = new PooledBlockPosition<>(BlockSelection.positionPool, null, 0, 0, 0);
++           BlockSelection.positionsToFree.add(p);
++           return p;
++       }
+    };
+ 
+    public static BlockState getBlockLookingAt() {
+@@ -156,9 +156,9 @@ public class BlockSelection {
+          this.workingPos.set(this.ray.origin);
+ 
+          for(; this.workingPos.dst(this.ray.origin) <= this.maximumRaycastDist; this.workingPos.add(this.ray.direction)) {
+-            int bx = (int)Math.floor((double)this.workingPos.x);
+-            int by = (int)Math.floor((double)this.workingPos.y);
+-            int bz = (int)Math.floor((double)this.workingPos.z);
++            int bx = (int)Math.floor(this.workingPos.x);
++            int by = (int)Math.floor(this.workingPos.y);
++            int bz = (int)Math.floor(this.workingPos.z);
+             int dx = 0;
+             int dy = 0;
+             int dz = 0;
+@@ -345,8 +345,8 @@ public class BlockSelection {
+             args.put("blockPos", blockPos);
+             args.put("timeSinceLastInteract", timeSinceLastInteract);
+ 
+-            for(int i = 0; i < triggers.length; ++i) {
+-               triggers[i].act(blockState, zone, args);
++            for (BlockEventTrigger trigger : triggers) {
++               trigger.act(blockState, zone, args);
+             }
+          }
+       }
+@@ -413,8 +413,8 @@ public class BlockSelection {
+             args.put("targetBlockState", targetBlockState);
+             args.put("timeSinceLastInteract", timeSinceLastInteract);
+ 
+-            for(int i = 0; i < triggers.length; ++i) {
+-               triggers[i].act(targetBlockState, zone, args);
++            for (BlockEventTrigger trigger : triggers) {
++               trigger.act(blockState, zone, args);
+             }
+          }
+       }
+@@ -440,8 +440,8 @@ public class BlockSelection {
+             args.put("interactHeld", interactHeld);
+             args.put("timeSinceLastInteract", timeSinceLastInteract);
+ 
+-            for(int i = 0; i < triggers.length; ++i) {
+-               triggers[i].act(blockState, zone, args);
++            for (BlockEventTrigger trigger : triggers) {
++               trigger.act(blockState, zone, args);
+             }
+          }
+       }

@@ -1,5 +1,5 @@
 diff --git a/src/main/java/finalforeach/cosmicreach/util/Point3DMap.java b/src/main/java/finalforeach/cosmicreach/util/Point3DMap.java
-index 6a11c2a..68679a3 100644
+index 6a11c2a..1a73683 100644
 --- a/src/main/java/finalforeach/cosmicreach/util/Point3DMap.java
 +++ b/src/main/java/finalforeach/cosmicreach/util/Point3DMap.java
 @@ -81,7 +81,7 @@ public class Point3DMap<T> implements IPoint3DMap<T> {
@@ -7,7 +7,7 @@ index 6a11c2a..68679a3 100644
     @Override
     public void forEach(Consumer<T> consumer) {
 -      this.map.forEach(lt -> ((IntMap)lt.value).forEach(t -> consumer.accept((T)t.value)));
-+      this.map.forEach(lt -> (lt.value).forEach(t -> consumer.accept((T)t.value)));
++      this.map.forEach(lt -> lt.value.forEach(t -> consumer.accept(t.value)));
     }
  
     @Override

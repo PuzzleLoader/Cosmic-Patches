@@ -1,0 +1,13 @@
+diff --git a/src/main/java/finalforeach/cosmicreach/ui/debug/DebugInfo.java b/src/main/java/finalforeach/cosmicreach/ui/debug/DebugInfo.java
+index 17891ce..7ae4b7f 100644
+--- a/src/main/java/finalforeach/cosmicreach/ui/debug/DebugInfo.java
++++ b/src/main/java/finalforeach/cosmicreach/ui/debug/DebugInfo.java
+@@ -89,7 +89,7 @@ public class DebugInfo {
+       addDebugItem(new DebugObjectItem<>(false, () -> InGame.getLocalPlayer().getChunk(InGame.world), c -> "Chunk: " + c));
+       addDebugItem(
+          new DebugObjectItem<>(
+-            false, () -> BlockSelection.getBlockLookingAt(), bs -> "Looking at " + BlockSelection.getBlockPositionLookingAt() + ": " + bs.getSaveKey()
++            false, BlockSelection::getBlockLookingAt, bs -> "Looking at " + BlockSelection.getBlockPositionLookingAt() + ": " + bs.getSaveKey()
+          )
+       );
+       DebugIntItem debugLighting = new DebugIntItem(() -> InGame.getLocalPlayer().getBlockLight(InGame.world), blockLight -> {

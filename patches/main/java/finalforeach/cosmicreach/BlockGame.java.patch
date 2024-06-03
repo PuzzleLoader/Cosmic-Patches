@@ -1,0 +1,34 @@
+diff --git a/src/main/java/finalforeach/cosmicreach/BlockGame.java b/src/main/java/finalforeach/cosmicreach/BlockGame.java
+index 47ea50d..d392e22 100644
+--- a/src/main/java/finalforeach/cosmicreach/BlockGame.java
++++ b/src/main/java/finalforeach/cosmicreach/BlockGame.java
+@@ -30,15 +30,6 @@ import java.nio.IntBuffer;
+ public class BlockGame extends ApplicationAdapter {
+    public static Lwjgl3Application lwjglApp;
+    public static boolean gameStarted = false;
+-   static final int GPU_MEMORY_INFO_DEDICATED_VIDMEM_NVX = 36935;
+-   static final int GPU_MEMORY_INFO_TOTAL_AVAILABLE_MEMORY_NVX = 36936;
+-   static final int GPU_MEMORY_INFO_CURRENT_AVAILABLE_VIDMEM_NVX = 36937;
+-   static final int GPU_MEMORY_INFO_EVICTION_COUNT_NVX = 36938;
+-   static final int GPU_MEMORY_INFO_EVICTED_MEMORY_NVX = 36939;
+-   static final int GL_NUM_EXTENSIONS = 33309;
+-   long totalFrames;
+-   double totalDelta;
+-   double lastFrameFPS;
+    public static boolean isFocused = true;
+    private int defaultWindowWidth;
+    private int defaultWindowHeight;
+@@ -105,12 +96,7 @@ public class BlockGame extends ApplicationAdapter {
+             BlockModelJson.getInstanceFromJsonStr(modelName, modelJson, rotXZ);
+          }
+       };
+-      ZoneGenerator.BLOCKSTATE_INSTANTIATOR = new BlockStateInstantiator() {
+-         @Override
+-         public BlockState getBlockStateInstance(String blockStateId) {
+-            return BlockState.getInstance(blockStateId);
+-         }
+-      };
++      ZoneGenerator.BLOCKSTATE_INSTANTIATOR = BlockState::getInstance;
+       gameStarted = true;
+    }
+ 

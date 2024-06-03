@@ -1,0 +1,21 @@
+diff --git a/src/main/java/finalforeach/cosmicreach/lwjgl3/Lwjgl3Launcher.java b/src/main/java/finalforeach/cosmicreach/lwjgl3/Lwjgl3Launcher.java
+index 78d9f28..83e2bbb 100644
+--- a/src/main/java/finalforeach/cosmicreach/lwjgl3/Lwjgl3Launcher.java
++++ b/src/main/java/finalforeach/cosmicreach/lwjgl3/Lwjgl3Launcher.java
+@@ -67,14 +67,13 @@ public class Lwjgl3Launcher {
+       Lwjgl3ApplicationConfiguration configuration = new Lwjgl3ApplicationConfiguration();
+       setupForMac(configuration);
+       configuration.disableAudio(true);
+-      configuration.setTitle("Cosmic Reach");
++      configuration.setTitle("Cosmic Reach | Cosmic Reach Coder Pack");
+       configuration.useVsync(GraphicsSettings.vSyncEnabled.getValue());
+       configuration.enableGLDebugOutput(true, System.err);
+       configuration.setForegroundFPS(0);
+       configuration.setWindowedMode(1024, 576);
+       configuration.setWindowIcon(
+-         new String[]{"textures/logox128.png", "textures/logox64.png", "textures/logox48.png", "textures/logox32.png", "textures/logox16.png"}
+-      );
++              "textures/logox128.png", "textures/logox64.png", "textures/logox48.png", "textures/logox32.png", "textures/logox16.png");
+       configuration.setWindowListener(new CRLwjgl3WindowListener());
+       return configuration;
+    }

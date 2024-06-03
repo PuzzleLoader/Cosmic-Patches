@@ -1,0 +1,17 @@
+diff --git a/src/main/java/finalforeach/cosmicreach/lwjgl3/CrashScreen.java b/src/main/java/finalforeach/cosmicreach/lwjgl3/CrashScreen.java
+index b348405..6364400 100644
+--- a/src/main/java/finalforeach/cosmicreach/lwjgl3/CrashScreen.java
++++ b/src/main/java/finalforeach/cosmicreach/lwjgl3/CrashScreen.java
+@@ -61,10 +61,10 @@ public class CrashScreen {
+ 
+          gameVersion = Gdx.files.internal("build_assets/version.txt").readString();
+       } catch (Exception var38) {
+-         preStartErr.append(var38.toString());
++         preStartErr.append(var38);
+       }
+ 
+-      infoItems.put("Game version", gameVersion);
++      infoItems.put("Game version", gameVersion + " | Cosmic Reach Coder Pack");
+       infoItems.put("Ran for ", ranForTime);
+       infoItems.put("Current time", ZonedDateTime.now().toString().replace("T", " at "));
+       infoItems.put("Operating system", System.getProperty("os.name") + " " + System.getProperty("os.version"));

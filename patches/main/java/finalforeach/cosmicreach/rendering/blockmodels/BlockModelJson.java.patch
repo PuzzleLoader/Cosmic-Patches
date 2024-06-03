@@ -1,7 +1,16 @@
 diff --git a/src/main/java/finalforeach/cosmicreach/rendering/blockmodels/BlockModelJson.java b/src/main/java/finalforeach/cosmicreach/rendering/blockmodels/BlockModelJson.java
-index 30814f5..0b0b98b 100644
+index 30814f5..02f4e0b 100644
 --- a/src/main/java/finalforeach/cosmicreach/rendering/blockmodels/BlockModelJson.java
 +++ b/src/main/java/finalforeach/cosmicreach/rendering/blockmodels/BlockModelJson.java
+@@ -44,7 +44,7 @@ public class BlockModelJson extends BlockModel {
+ 
+       return models.get(key);
+    }
+-
++   @SuppressWarnings("unchecked")
+    public static BlockModelJson fromJson(String modelJson, int rotXZ) {
+       Json json = new Json();
+       BlockModelJson b = json.fromJson(BlockModelJson.class, modelJson);
 @@ -173,10 +173,10 @@ public class BlockModelJson extends BlockModel {
                    }
                    break;

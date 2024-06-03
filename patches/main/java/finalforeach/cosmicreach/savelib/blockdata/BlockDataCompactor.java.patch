@@ -1,13 +1,22 @@
 diff --git a/src/main/java/finalforeach/cosmicreach/savelib/blockdata/BlockDataCompactor.java b/src/main/java/finalforeach/cosmicreach/savelib/blockdata/BlockDataCompactor.java
-index e9aefee..08ffd05 100644
+index 0a21403..6dc6952 100644
 --- a/src/main/java/finalforeach/cosmicreach/savelib/blockdata/BlockDataCompactor.java
 +++ b/src/main/java/finalforeach/cosmicreach/savelib/blockdata/BlockDataCompactor.java
-@@ -6,7 +6,7 @@ import finalforeach.cosmicreach.savelib.blockdata.layers.SharedBlockSingleLayer;
+@@ -17,7 +17,7 @@ public class BlockDataCompactor {
+                label43:
+                for(int i = 0; i < 16; ++i) {
+                   for(int k = 0; k < 16; ++k) {
+-                     T curBlockState = layer.getBlockValue(layered, i, k);
++                     T curBlockState = (T) layer.getBlockValue(layered, i, k);
+                      if (layerBlockState == null) {
+                         layerBlockState = curBlockState;
+                      } else if (layerBlockState != curBlockState) {
+@@ -36,7 +36,7 @@ public class BlockDataCompactor {
  
- public class BlockDataCompactor {
-    public static <T> IBlockData<T> compact(IBlockData<T> blockData) {
--      if (blockData instanceof LayeredBlockData layered) {
-+      if (blockData instanceof LayeredBlockData<T> layered) {
-          IBlockLayer<T>[] allLayers = layered.getLayers();
+          if (layered.getPaletteSize() == 1) {
+             SingleBlockData<T> newChunkData = new SingleBlockData<>();
+-            blockData = newChunkData.fill(layered.getBlockValueFromPaletteId(0));
++            blockData = newChunkData.fill((T) layered.getBlockValueFromPaletteId(0));
+          }
+       }
  
-          for(int yLevel = 0; yLevel < allLayers.length; ++yLevel) {

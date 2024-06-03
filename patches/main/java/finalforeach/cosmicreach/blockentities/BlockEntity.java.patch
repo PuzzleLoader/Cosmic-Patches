@@ -1,8 +1,8 @@
 diff --git a/src/main/java/finalforeach/cosmicreach/blockentities/BlockEntity.java b/src/main/java/finalforeach/cosmicreach/blockentities/BlockEntity.java
-index 27c9f6b..2d3a745 100644
+index 1cb9b76..9d9429a 100644
 --- a/src/main/java/finalforeach/cosmicreach/blockentities/BlockEntity.java
 +++ b/src/main/java/finalforeach/cosmicreach/blockentities/BlockEntity.java
-@@ -77,13 +77,14 @@ public abstract class BlockEntity implements ICosmicReachBinarySerializable {
+@@ -77,7 +77,7 @@ public abstract class BlockEntity implements ICosmicReachBinarySerializable {
  
     public static float getBlockEntityParamFloat(Block block, String paramName, float defaultValue) {
        OrderedMap<String, ?> params = block.blockEntityParams;
@@ -11,10 +11,3 @@ index 27c9f6b..2d3a745 100644
     }
  
     public static String getBlockEntityParamString(Block block, String paramName) {
-       return getBlockEntityParam(block, paramName);
-    }
- 
-+   @SuppressWarnings("unchecked")
-    public static <T> T getBlockEntityParam(Block block, String paramName) {
-       OrderedMap<String, ?> params = block.blockEntityParams;
-       return (T)(params != null && params.containsKey(paramName) ? params.get(paramName) : null);

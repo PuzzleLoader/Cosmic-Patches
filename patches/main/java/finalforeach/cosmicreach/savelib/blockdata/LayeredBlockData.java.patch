@@ -1,51 +1,14 @@
 diff --git a/src/main/java/finalforeach/cosmicreach/savelib/blockdata/LayeredBlockData.java b/src/main/java/finalforeach/cosmicreach/savelib/blockdata/LayeredBlockData.java
-index aa706b6..8b8ada4 100644
+index 3589dc3..013cd45 100644
 --- a/src/main/java/finalforeach/cosmicreach/savelib/blockdata/LayeredBlockData.java
 +++ b/src/main/java/finalforeach/cosmicreach/savelib/blockdata/LayeredBlockData.java
-@@ -14,6 +14,7 @@ import java.util.Arrays;
- import java.util.function.Function;
- import java.util.function.Predicate;
- 
-+@SuppressWarnings("unchecked")
- public class LayeredBlockData<T> implements IBlockData<T> {
-    private IBlockLayer<T>[] layers = new IBlockLayer[16];
-    private T[] blockStatePalette;
-@@ -62,9 +63,10 @@ public class LayeredBlockData<T> implements IBlockData<T> {
-       return new SingleBlockData<>(blockState);
-    }
- 
-+   @SuppressWarnings("unchecked")
-    @Override
-    public IBlockData<T> fillLayer(T blockState, int localY) {
--      IBlockLayer sx = this.layers[localY];
-+      IBlockLayer<T> sx = this.layers[localY];
-       if (sx instanceof BlockSingleLayer s) {
-          s.fill(this, localY, blockState);
-       } else {
-@@ -78,13 +80,12 @@ public class LayeredBlockData<T> implements IBlockData<T> {
-             return this.fill(blockState);
-          }
- 
--         IBlockLayer var5 = this.layers[i];
--         if (!(var5 instanceof BlockSingleLayer)) {
-+         IBlockLayer<T> var5 = this.layers[i];
-+         if (!(var5 instanceof BlockSingleLayer<T> s)) {
-             break;
-          }
- 
--         BlockSingleLayer<T> s = (BlockSingleLayer)var5;
--         if (s.blockValue != blockState) {
-+          if (s.blockValue != blockState) {
-             break;
-          }
- 
-@@ -124,8 +125,8 @@ public class LayeredBlockData<T> implements IBlockData<T> {
+@@ -124,8 +124,8 @@ public class LayeredBlockData<T> implements IBlockData<T> {
     }
  
     public void setLayer(int yLevel, IBlockLayer<T> layer) {
 -      if (layer instanceof SharedBlockSingleLayer shared && !this.paletteHasValue(shared.blockValue)) {
 -         this.addToPalette(shared.blockValue);
-+      if (layer instanceof SharedBlockSingleLayer<?> shared && !this.paletteHasValue((T) shared.blockValue)) {
++      if (layer instanceof SharedBlockSingleLayer shared && !this.paletteHasValue((T) shared.blockValue)) {
 +         this.addToPalette((T) shared.blockValue);
        }
  
